@@ -4,11 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 //import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 //import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorOutputStatusValue;
 
 import edu.wpi.first.wpilibj.Encoder;
 //import edu.wpi.first.wpilibj.motorcontrol.Talon;
@@ -22,13 +25,22 @@ public class Drivetrain extends SubsystemBase {
 
   // For Use later (The current method for inverting
   // Is depreciated)
-  TalonFXConfiguration config;
-
+  TalonFXConfiguration leftConfig;
+  // Ill most likely code this to be more 
+  // specific in terms of function
+  TalonFXConfiguration rightConfig;
+  
   public Drivetrain() {
-    // Encoders
-    rightEncoder = new Encoder(1,0);
-    leftEncoder = new Encoder(3,4);
+    // Encoders (test them like this first, 
+    // then figure out how to use w spark maxes)
 
+    // Right encoder
+    rightEncoder = new Encoder(DrivetrainConstants.rightEncoderChanA, 
+    DrivetrainConstants.rightEncoderChanB);
+    // Left encoder
+    leftEncoder = new Encoder(DrivetrainConstants.leftEncoderChanA,
+    DrivetrainConstants.leftEncoderChanB);
+    
     // Motors
     rightFront = new TalonFX(DrivetrainConstants.rightFrontPort);
     leftFront = new TalonFX(DrivetrainConstants.leftFrontPort);
@@ -36,9 +48,21 @@ public class Drivetrain extends SubsystemBase {
     rightBack = new TalonFX(DrivetrainConstants.rightBackPort);
     leftBack = new TalonFX(DrivetrainConstants.leftBackPort);
 
-    // Note: Fix remove this warning ASAP
-    leftFront.setInverted(true);
+    // Create and set configurations (For left motor, I may have to specify the right motor)
+    leftConfig = new TalonFXConfiguration();
+    // Invert left motor
+    leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
+    // Create and set configurations (For right motor)
+    rightConfig = new TalonFXConfiguration();
+    // Set the right motor to turn in the opposite direction of the left motor
+    rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    // Apply the configuration thing needed
+    rightFront.getConfigurator().apply(rightConfig);
+    leftFront.getConfigurator().apply(leftConfig);
+
+    // Get the back motors to follow their respective front motors
     rightBack.setControl(new Follower(rightFront.getDeviceID(), false));
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
 
@@ -50,8 +74,8 @@ public class Drivetrain extends SubsystemBase {
     leftFront.set(y);
   }
 
-  public void getEncoderValues(){
-    
+  public double getAverageEncoderValues(){
+    return ((rightEncoder.getDistance() + leftEncoder.getDistance())/2.0); 
   }
 
   @Override

@@ -17,6 +17,11 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
   public static class DrivetrainConstants{
+    // Encoder Channels
+    public static final int rightEncoderChanA = 0;
+    public static final int rightEncoderChanB = 1;
+    public static final int leftEncoderChanA = 2;
+    public static final int leftEncoderChanB = 3;
     // Motor IDs
     public static final int rightFrontPort = 0;
     public static final int rightBackPort = 1;
