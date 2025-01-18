@@ -2,25 +2,22 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.climbing;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.Constants.ClimbConstants;
+import frc.robot.subsystems.Climb;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveForward extends Command {
-  private Drivetrain drivetrain;
-  private double distance;
-  private double speed;
-      
-    /** Creates a new AutoDrive. */
-  public DriveForward(Drivetrain drivetrain, double speed, double distance) {
-    this.drivetrain = drivetrain;
-    this.speed = speed;
-    this.distance = distance;
+public class ForwardClimb extends Command {
+  Climb climb;
+
+  /** Creates a new Climb. */
+  public ForwardClimb(Climb climb) {
+    this.climb = climb;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(Robot.Drivetrain);
+    addRequirements(Robot.Climb);
   }
 
   // Called when the command is initially scheduled.
@@ -30,8 +27,7 @@ public class DriveForward extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println("running");
-    drivetrain.tank(speed, speed);
+    climb.runClimb(ClimbConstants.ClimbRunningValue);
   }
 
   // Called once the command ends or is interrupted.
@@ -41,9 +37,6 @@ public class DriveForward extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(drivetrain.getAverageEncoderValues() < distance){
-      return false;
-    }
-    return true;
+    return false;
   }
 }

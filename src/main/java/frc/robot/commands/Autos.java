@@ -7,13 +7,14 @@ package frc.robot.commands;
 //import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Robot;
 
 public final class Autos {
   // All autonomous sequences will be added here
 
   /** Example static factory for an autonomous command. */
   public static Command AutoDriveCommand() {
-    return null;
+    return new DriveForward(Robot.Drivetrain, 1, 2);
   }
 
   private Autos() {
