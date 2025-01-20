@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,11 +28,11 @@ public class Climb extends SubsystemBase {
     ClimbMotorConfigs.idleMode(IdleMode.kBrake);
 
     ClimbMotorFollowerConfigs = new SparkMaxConfig();
-    ClimbMotorConfigs.follow(ClimbMotor.getDeviceId());
-    ClimbMotorConfigs.idleMode(IdleMode.kBrake);
+    ClimbMotorFollowerConfigs.follow(ClimbMotor);
+    ClimbMotorFollowerConfigs.idleMode(IdleMode.kBrake);
 
-    ClimbMotorFollower.configure(ClimbMotorConfigs, null, PersistMode.kPersistParameters);
-    ClimbMotor.configure(ClimbMotorConfigs, null, PersistMode.kPersistParameters);
+    ClimbMotorFollower.configure(ClimbMotorFollowerConfigs, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ClimbMotor.configure(ClimbMotorConfigs, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 

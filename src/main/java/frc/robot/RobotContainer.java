@@ -12,6 +12,9 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
+
+import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,6 +51,8 @@ public class RobotContainer {
     SmartDashboard.putData("Choices", AutoChooser);
     // Configure the trigger bindings
     configureBindings();
+
+    Robot.Climb.setDefaultCommand(climbStop);
   }
 
   /**
@@ -67,11 +72,9 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.triangle().whileTrue(Commands.runOnce(()-> {climbCommand.execute();}));
-    m_driverController.triangle().whileFalse(Commands.runOnce(()-> {climbStop.execute();}));
+    m_driverController.triangle().whileTrue(climbCommand);
     
-    m_driverController.circle().whileTrue(Commands.runOnce(()-> {reversClimb.execute();}));
-    m_driverController.circle().whileFalse(Commands.runOnce(()-> {climbStop.execute();}));
+    m_driverController.circle().whileTrue(reversClimb);
   }
 
   /**

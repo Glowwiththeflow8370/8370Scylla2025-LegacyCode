@@ -68,6 +68,6 @@ public final class Constants {
     public static final int ClimbMotor = 5;
     public static final int ClimbMotorFollower = 6;
     // Running Values
-    public static final double ClimbRunningValue = 0.10;
+    public static final double ClimbRunningValue = 0.2;
   }
 }
