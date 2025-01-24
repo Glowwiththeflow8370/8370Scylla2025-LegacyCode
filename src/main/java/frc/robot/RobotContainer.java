@@ -9,9 +9,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
-import frc.robot.commands.climbing.ForwardClimb;
-import frc.robot.commands.climbing.ClimbStop;
-import frc.robot.commands.climbing.ReversClimb;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,10 +26,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  ForwardClimb climbCommand = new ForwardClimb(Robot.Climb);
-  ReversClimb reversClimb = new ReversClimb(Robot.Climb);
-  ClimbStop climbStop = new ClimbStop(Robot.Climb);
+  
   // Replace with CommandPS4Controller or CommandJoystick if needed
+
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
 
@@ -41,6 +37,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
+    Robot.elevator.setDefaultCommand(elevatorStop);
 
     // Good to know this works!
     AutoChooser.addOption("Basic Drive", Autos.AutoDriveCommand());
@@ -67,12 +64,8 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.triangle().whileTrue(Commands.runOnce(()-> {climbCommand.execute();}));
-    m_driverController.triangle().whileFalse(Commands.runOnce(()-> {climbStop.execute();}));
-    
-    m_driverController.circle().whileTrue(Commands.runOnce(()-> {reversClimb.execute();}));
-    m_driverController.circle().whileFalse(Commands.runOnce(()-> {climbStop.execute();}));
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
