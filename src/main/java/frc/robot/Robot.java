@@ -24,6 +24,8 @@ public class Robot extends TimedRobot {
   // Declare Subsystems (For dependencies)
   public static Drivetrain Drivetrain = new Drivetrain();
 
+  public static Elevator elevator = new Elevator();
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
