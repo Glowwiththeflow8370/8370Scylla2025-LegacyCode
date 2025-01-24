@@ -9,12 +9,10 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
-import frc.robot.commands.ElevatorDown;
-import frc.robot.commands.ElevatorStop;
-import frc.robot.commands.ElevatorUp;
-import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -28,9 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final ElevatorUp elevatorUp = new ElevatorUp(Robot.elevator);
-  private final ElevatorDown elevatorDown = new ElevatorDown(Robot.elevator);
-  private final ElevatorStop elevatorStop = new ElevatorStop(Robot.elevator);
+  
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
   private final CommandPS4Controller m_driverController =
@@ -45,7 +41,8 @@ public class RobotContainer {
 
     // Good to know this works!
     AutoChooser.addOption("Basic Drive", Autos.AutoDriveCommand());
-
+    AutoChooser.addOption("Placeholder", null);
+    SmartDashboard.putData("Choices", AutoChooser);
     // Configure the trigger bindings
     configureBindings();
   }
@@ -67,8 +64,6 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.square().whileTrue(elevatorUp);
-    m_driverController.cross().whileTrue(elevatorDown);
   }
 
 
