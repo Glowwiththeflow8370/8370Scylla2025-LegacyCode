@@ -7,7 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.*;
 
 /**
@@ -24,6 +24,8 @@ public class Robot extends TimedRobot {
   // Declare Subsystems (For dependencies)
   public static Drivetrain Drivetrain = new Drivetrain();
   public static Climb Climb = new Climb();
+
+  public static Elevator Elevator = new Elevator();
 
   /**
    * This function is run when the robot is first started up and should be used for any

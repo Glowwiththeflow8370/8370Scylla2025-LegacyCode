@@ -101,28 +101,28 @@ public class Drivetrain extends SubsystemBase {
     rightBack.setControl(new Follower(rightFront.getDeviceID(), false));
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
 
-    // Finish this by 1/24/25
+    // Finish this by 2/8/25
 
-    // AutoBuilder.configure(
-    //     this::getPose, // Robot pose supplier
-    //     this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-    //     null, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-    //     null, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-    //     new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
-    //     DrivetrainConstants.robotConfig, // The robot configuration
-    //     () -> {
-    //       // Boolean supplier that controls when the path will be mirrored for the red alliance
-    //       // This will flip the path being followed to the red side of the field.
-    //       // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    AutoBuilder.configure(
+        this::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getCurrentSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        this::tankRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+        new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+        DrivetrainConstants.robotConfig, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-    //       var alliance = DriverStation.getAlliance();
-    //       if (alliance.isPresent()) {
-    //         return alliance.get() == DriverStation.Alliance.Red;
-    //         }
-    //       return false;
-    //               },
-    //       this // Reference to this subsystem to set requirements
-    // );
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+            }
+          return false;
+                  },
+          this // Reference to this subsystem to set requirements
+    );
   }
 
   // Drive Command
@@ -146,14 +146,15 @@ public class Drivetrain extends SubsystemBase {
 
   }
 
-  public ChassisSpeeds getCurrentSpeeds(ChassisSpeeds speeds){
+  public ChassisSpeeds getCurrentSpeeds(){
     // Fix this later
-    return ChassisSpeeds.fromRobotRelativeSpeeds(speeds,new Rotation2d(2.2));
+    return ChassisSpeeds.fromRobotRelativeSpeeds(null,new Rotation2d(2.2));
   }
 
-  // There is supposed to be a drive command?
-  // Maybe use the current one?
-  
+  // Tank Drive based on relative speeds
+  public void tankRelative(ChassisSpeeds speeds){
+
+  }
   
   @Override
   public void periodic() {

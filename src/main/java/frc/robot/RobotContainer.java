@@ -9,6 +9,9 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
+import frc.robot.commands.ElevatorDown;
+import frc.robot.commands.ElevatorStop;
+import frc.robot.commands.ElevatorUp;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
@@ -32,9 +35,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+
+  // Climb Commands
   ForwardClimb climbCommand = new ForwardClimb(Robot.Climb);
   ReversClimb reversClimb = new ReversClimb(Robot.Climb);
   ClimbStop climbStop = new ClimbStop(Robot.Climb);
+
+  // Elevator Commands
+  ElevatorUp elevatorUp = new ElevatorUp(Robot.Elevator);
+  ElevatorDown elevatorDown = new ElevatorDown(Robot.Elevator);
+  ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
@@ -46,13 +57,14 @@ public class RobotContainer {
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
 
     // Good to know this works!
-    AutoChooser.addOption("Basic Drive", Autos.AutoDriveCommand());
+    AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
     AutoChooser.addOption("Placeholder", null);
     SmartDashboard.putData("Choices", AutoChooser);
     // Configure the trigger bindings
     configureBindings();
 
     Robot.Climb.setDefaultCommand(climbStop);
+    Robot.Elevator.setDefaultCommand(elevatorStop);
   }
 
   /**
@@ -72,9 +84,14 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    // Climb Buttons
     m_driverController.triangle().whileTrue(climbCommand);
-    
     m_driverController.circle().whileTrue(reversClimb);
+
+    // Elevator Buttons
+    m_driverController.square().whileTrue(elevatorUp);
+    m_driverController.cross().whileTrue(elevatorDown);
   }
 
   /**
@@ -87,3 +104,38 @@ public class RobotContainer {
     return AutoChooser.getSelected();
   }
 }
+
+//   ⠀⠀⠀⣠⡤⠤⠤⠤⣤⣤⣤⣤⣤⣤⣄⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⢀⡼⠋⠀⠄⣀⣾⣿⣿⣿⣿⣿⣟⡁⠈⠈⠉⠉⠙⠒⠶⠤⢄⣀⠀⠀⣠⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡞⠀⠐⠀⣴⣿⣿⣿⣿⡿⠟⠋⠁⠠⠈⡀⠡⠈⠄⠂⡀⠄⢀⠈⠙⠺⢿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡇⠀⣡⣾⣿⣿⣿⠟⠉⠀⠄⠐⠈⡀⠐⡀⠂⠁⠄⢂⠠⠐⠀⡀⢦⡀⠀⠙⢿⣿⣿⡍⠳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⣇⣴⣿⣿⣿⠟⠁⢀⠈⠄⠂⡈⠐⡀⠡⠀⠡⢈⠀⠂⠄⠂⢁⠀⠸⣗⠈⢀⠀⠻⣿⣧⠀⢷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⣿⣿⣿⣿⠁⠀⠐⠀⠀⠂⠐⠀⠁⡄⠂⠁⠐⠀⡌⠐⢠⠁⠀⠂⠀⣯⠀⠀⠂⠀⢹⣿⠀⢸⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⣿⣿⡟⠁⠀⠌⢀⠂⢁⠈⠄⠁⠂⠄⠐⠈⡀⢁⠠⠐⠀⠄⢁⠐⢈⡯⠀⠌⢀⠂⠀⢻⡆⠈⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⣯⡏⠀⠠⠁⡀⢂⠀⠂⣄⡂⠁⢈⠀⠌⠀⠄⠠⠀⠂⢁⠀⢂⠀⣾⠃⢀⠂⠄⠠⠁⡀⢷⠀⢻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡟⠀⠠⠁⡐⠀⠠⠐⠀⠙⠿⣆⠀⢂⣠⣬⡴⣾⠆⠁⠠⠈⢀⣼⠏⠀⠄⠂⠈⠄⠐⢀⢸⡆⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡇⠂⠁⡀⠄⠂⣁⣠⣬⣴⣶⣟⠿⣋⠁⠀⣰⠏⠀⠠⠁⣰⡾⠹⡇⢀⠐⢈⠠⠈⠀⠄⠠⡇⠈⢷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⣇⣤⣦⠀⠠⣸⡿⣻⠟⠋⠛⢿⣧⠉⢠⡞⠁⡀⠐⣠⡶⠋⢀⣀⣿⡄⠀⠂⠠⢀⠁⡄⡀⡇⢀⢺⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⢛⡇
+// ⠀⣿⣿⣿⠘⢷⣿⢠⡏⠳⠦⣤⣼⠃⣼⣣⠤⠶⠖⢛⣽⣿⣭⣁⠀⣯⠀⠠⠁⡐⠀⢸⣧⠐⡇⠀⡈⣇⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣠⣤⣶⡖⣿⠉⠉⢳⣀⣠⣴⣾⣿⣿⣿⣿⢘⡇
+// ⠀⣿⣿⣿⡀⢈⡟⠘⣦⡀⠄⣰⠏⠀⠀⠀⠀⠀⢀⡽⠛⠙⢺⡻⣇⡷⠀⡐⠀⠄⠈⣼⢻⢸⠃⠄⠀⣽⠀⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢘⡇
+// ⠀⡟⣿⣿⣧⢘⡇⠀⠀⠉⠋⠁⠀⠀⠀⠀⠀⠀⣾⠙⠦⣤⢴⡇⣿⡏⠀⠄⠂⢈⢠⣏⣾⣾⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢨⡇
+// ⠀⡇⠈⣿⠙⣯⣷⡀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⢿⣠⠀⣠⡞⢠⣿⠅⡀⠂⠈⢠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢨⡇
+// ⠀⡇⠈⠹⢦⣈⡿⠙⣦⡀⠀⠈⠷⣀⣠⠀⠀⠀⠀⠉⠉⠁⢒⣿⡿⠀⠀⠂⢡⣿⣯⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢰⡇
+// ⠀⡇⡐⠀⡈⣹⢿⣖⠠⠙⢦⣄⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⡟⠀⢀⣢⣼⣿⣿⣷⣏⠼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠰⡇
+// ⠀⡇⠁⡀⢡⡟⠈⠙⠲⠦⣌⡿⢲⣤⠤⠤⠴⣖⢶⣾⣿⣿⠟⣁⣴⣾⣿⣿⣿⣿⣿⣿⠴⡹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣰⡇
+// ⠀⡇⣰⠦⠿⠷⡤⣄⡀⠀⠀⠉⢻⣆⠀⠀⠀⢻⡜⣿⣿⣿⣿⣿⣿⣿⣷⣬⣭⣹⣍⣏⣳⣱⢣⡏⠙⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠉⠉⠉⠉⠉⠉⠉⠉⠁⠀
+// ⠀⣷⠋⠀⠀⠀⠀⠀⠙⢷⢦⣀⢸⣇⣙⡷⢤⣀⣿⡘⣿⣿⣿⣿⣿⣿⠿⠟⣟⠉⣿⣿⣿⣿⣿⣷⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡏⠀⠀⠀⠀⠀⠀⠀⠈⢷⣉⡿⠬⠿⠤⣤⣀⣀⠙⢻⡿⠟⠋⠉⠀⠀⠀⢸⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⢸⡅⡖⡄⢿⠀⠀⠀⠀⠀⠈⣻⣿⣿⣿⣷⣶⣦⣬⡙⠾⣄⠀⠀⠀⠀⠀⠀⢸⢼⣃⠉⢉⠋⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⡇⢧⡝⠸⠆⠀⠀⢸⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣬⣳⣄⠀⠀⠀⠀⢸⣾⣿⣿⣿⣿⣦⣀⠈⠻⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠒⠢⢤⣀⠀⠀⠀⠀
+// ⠀⡇⠀⠀⠀⠀⠀⠀⠈⣇⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠷⣄⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡗⠦⢄⣀⠀⠉⠑⠲⡆
+// ⠀⣿⠀⠀⣀⣠⡤⠶⣚⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⣶⡀⠙⢧⡄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣀⠙⢻⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠈⠉⠓⣶⢤⡇
+// ⠀⣿⠶⣛⣭⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠈⢻⣆⠀⠹⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠘⣧⢠⠏⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⡟⢦⡀
+// ⠀⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠙⣷⡀⣿⣿⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⣿⣿⡀⠙⢿⡆⠠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⢀⡴⠋⢸⡇
+// ⠀⡇⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠈⢳⣿⣿⣿⣿⣿⣿⡟⠃⣾⣿⣿⣿⣿⣿⣿⡇⢘⣏⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡴⠞⠋⢀⠐⢸⡇
+// ⠀⡇⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡿⠟⢃⠀⢠⣿⣿⣿⣿⣿⣿⣿⡇⠘⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⢀⠀⠄⢸⡇
+// ⠀⡇⠈⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠉⠛⠛⠛⠛⠛⠛⠓⠖⠲⠛⠋⠁⠐⠈⡀⠄⠈⠙⠻⢿⣿⣿⣿⣿⣧⡄⢹⡇⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠠⠈⢸⡇
+// ⠀⡇⠀⠌⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⡐⠀⠄⠠⠐⢀⠐⠠⠀⠂⠄⠂⢁⠈⠄⠠⠐⠈⡀⠄⠂⠙⢿⣿⣿⣿⠇⢼⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣎⡀⠐⢸⡇
+// ⠀⡇⠂⠀⠺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⢀⠠⠈⡀⢂⠐⡀⢂⠀⡁⠐⡀⠌⡀⢈⠀⢂⠁⡐⠀⡐⠀⠄⡀⠙⠿⣿⣦⠈⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡄⢸⡇
+// ⠀⡇⠠⠁⠄⢻⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠄⠠⠀⠔⠠⠀⠄⠠⠀⡐⠠⠁⠠⠀⠄⠠⠈⠠⠀⠄⠐⠠⠈⠄⠠⠀⠄⠈⠙⠛⢉⡿⣻⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⢳⣸⡇
+// ⠀⠓⠒⠒⠒⠚⠻⣿⣿⣿⣿⣿⣿⡿⠓⠒⠒⠒⠒⠒⠒⠒⠒⠒⠓⠒⠒⠒⠒⠒⠚⠒⠒⠓⠒⠚⠒⠒⠒⠒⠒⠒⠒⠓⠒⠒⠚⠓⠛⠒⠒⠚⠒⠓⠚⠚⠓⠛⠛⠛⠛⠛⠛⠚⠒⠃
