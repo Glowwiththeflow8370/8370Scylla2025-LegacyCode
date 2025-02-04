@@ -19,6 +19,9 @@ import com.studica.frc.AHRS.NavXUpdateRate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
@@ -31,28 +34,31 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
 
   // Motor Objects
-  TalonFX rightFront, rightBack, leftFront, leftBack;
+  private TalonFX rightFront, rightBack, leftFront, leftBack;
 
   // Encoder Objects
-  Encoder rightEncoder, leftEncoder;
+  private Encoder rightEncoder, leftEncoder;
 
   // NavX Gyro
   //AHRS NavX;
 
   // Emergency Gyro (In case NavX does not want to work)
-  ADXRS450_Gyro gyro;
+  private ADXRS450_Gyro gyro;
 
   // Configuration objects
-  TalonFXConfiguration leftConfig, rightConfig;
+  private TalonFXConfiguration leftConfig, rightConfig;
 
   // Kinematics/Odometry Objects
-  //RobotConfig robotConfig;
+  private ChassisSpeeds chassisSpeeds;
+  private DifferentialDriveKinematics kinematics;
+  private DifferentialDriveOdometry odometry;
 
   public Drivetrain() {
 
     //------------------------------------------
     // Encoders (test them like this first, 
     // then figure out how to use w spark maxes)
+    // They seem to work
     //------------------------------------------
     
     // Right encoder
@@ -66,8 +72,8 @@ public class Drivetrain extends SubsystemBase {
     // NavX is connected to) * I think ours is fried lol
     //NavX = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k4Hz);
     
-    // Emergency Gyro
-    gyro = new ADXRS450_Gyro(SPI.Port.kMXP);
+    // Emergency Gyro (It should work *hopefully)
+    gyro = new ADXRS450_Gyro();
 
     //--------
     // Motors
@@ -103,6 +109,17 @@ public class Drivetrain extends SubsystemBase {
 
     // Finish this by 2/8/25
 
+    //----------------
+    //   Kine/Odom
+    //----------------
+
+    // Fine tune these
+    chassisSpeeds = new ChassisSpeeds();
+    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(DrivetrainConstants.trackWidth));
+    odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+    
+    try {
+      
     AutoBuilder.configure(
         this::getPose, // Robot pose supplier
         this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -123,6 +140,10 @@ public class Drivetrain extends SubsystemBase {
                   },
           this // Reference to this subsystem to set requirements
     );
+
+    } catch (Exception e) {
+        System.out.println("Failed to configure autobuilder");
+    }
   }
 
   // Drive Command
@@ -131,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
     rightFront.set(x);
     leftFront.set(y);
   }
-
+  
   public double getAverageEncoderValues(){
     return ((rightEncoder.getDistance() + leftEncoder.getDistance())/2.0); 
   }
@@ -143,7 +164,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetPose(Pose2d initialStartingPose){
-
+      
   }
 
   public ChassisSpeeds getCurrentSpeeds(){
@@ -155,10 +176,22 @@ public class Drivetrain extends SubsystemBase {
   public void tankRelative(ChassisSpeeds speeds){
 
   }
+
+  // Extra Debug commands
+  public void displayEncoderValues(){
+      System.out.println("Average Encoder Values: " + getAverageEncoderValues());
+  }
+
+  public void displayGyroValues(){
+      System.out.println("Angle: " + gyro.getAngle());
+  }
   
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     
+    // Call the debug commands
+    // displayEncoderValues();
+    // displayGyroValues();
   }
 }

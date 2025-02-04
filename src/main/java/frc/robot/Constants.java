@@ -42,6 +42,8 @@ public final class Constants {
 
     // Values (Kine)
 
+    public static final double trackWidth = 12;
+
     // Kine Obj
 
     // Odometry
@@ -69,5 +71,19 @@ public final class Constants {
     public static final int ClimbMotorFollower = 6;
     // Running Values
     public static final double ClimbRunningValue = 0.2;
+  }
+
+  public static class ElevatorConstants{
+    // Motor channels
+    public static final int ElevatorMotor = 7;
+    public static final int ElevatorMotorFollower = 8;
+    // Elevator Motor Run Value
+    public static final double ElevatorMotorRunValue = 0.20;
+  }
+
+  public static class CompConsts{
+
+    public static final boolean isCompetiton = false;
+
   }
 }

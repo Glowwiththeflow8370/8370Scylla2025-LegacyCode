@@ -4,20 +4,25 @@
 
 package frc.robot;
 
+import frc.robot.Constants.CompConsts;
 //import frc.robot.Robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
-import frc.robot.commands.ElevatorDown;
-import frc.robot.commands.ElevatorStop;
-import frc.robot.commands.ElevatorUp;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
+import frc.robot.commands.elevate.ElevatorDown;
+import frc.robot.commands.elevate.ElevatorStop;
+import frc.robot.commands.elevate.ElevatorUp;
 
 import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
+import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,6 +41,11 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
+  // Camera Stuff goes here?
+  // UsbCamera usbTestCam = new UsbCamera("DriverCam", 0);
+  // MjpegServer server1 = new MjpegServer("DriverCamServer", 1181);
+  // UsbCamera cam = CameraServer.addCamera();
+
   // Climb Commands
   ForwardClimb climbCommand = new ForwardClimb(Robot.Climb);
   ReversClimb reversClimb = new ReversClimb(Robot.Climb);
@@ -46,11 +56,17 @@ public class RobotContainer {
   ElevatorDown elevatorDown = new ElevatorDown(Robot.Elevator);
   ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
 
+  // If needed, this is where the pathplanner autos will go
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
 
-  SendableChooser<Command> AutoChooser = new SendableChooser<>();
+  SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+    (stream) -> CompConsts.isCompetiton
+      ? stream.filter(auto -> auto.getName().startsWith("comp"))
+      : stream
+  );
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -58,11 +74,13 @@ public class RobotContainer {
 
     // Good to know this works!
     AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
-    AutoChooser.addOption("Placeholder", null);
+    //AutoChooser.addOption("Placeholder", null);
     SmartDashboard.putData("Choices", AutoChooser);
+
     // Configure the trigger bindings
     configureBindings();
 
+    // Set the default commands of the subsystems
     Robot.Climb.setDefaultCommand(climbStop);
     Robot.Elevator.setDefaultCommand(elevatorStop);
   }
@@ -104,38 +122,3 @@ public class RobotContainer {
     return AutoChooser.getSelected();
   }
 }
-
-//   ⠀⠀⠀⣠⡤⠤⠤⠤⣤⣤⣤⣤⣤⣤⣄⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⢀⡼⠋⠀⠄⣀⣾⣿⣿⣿⣿⣿⣟⡁⠈⠈⠉⠉⠙⠒⠶⠤⢄⣀⠀⠀⣠⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡞⠀⠐⠀⣴⣿⣿⣿⣿⡿⠟⠋⠁⠠⠈⡀⠡⠈⠄⠂⡀⠄⢀⠈⠙⠺⢿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡇⠀⣡⣾⣿⣿⣿⠟⠉⠀⠄⠐⠈⡀⠐⡀⠂⠁⠄⢂⠠⠐⠀⡀⢦⡀⠀⠙⢿⣿⣿⡍⠳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⣇⣴⣿⣿⣿⠟⠁⢀⠈⠄⠂⡈⠐⡀⠡⠀⠡⢈⠀⠂⠄⠂⢁⠀⠸⣗⠈⢀⠀⠻⣿⣧⠀⢷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⣿⣿⣿⣿⠁⠀⠐⠀⠀⠂⠐⠀⠁⡄⠂⠁⠐⠀⡌⠐⢠⠁⠀⠂⠀⣯⠀⠀⠂⠀⢹⣿⠀⢸⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⣿⣿⡟⠁⠀⠌⢀⠂⢁⠈⠄⠁⠂⠄⠐⠈⡀⢁⠠⠐⠀⠄⢁⠐⢈⡯⠀⠌⢀⠂⠀⢻⡆⠈⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⣯⡏⠀⠠⠁⡀⢂⠀⠂⣄⡂⠁⢈⠀⠌⠀⠄⠠⠀⠂⢁⠀⢂⠀⣾⠃⢀⠂⠄⠠⠁⡀⢷⠀⢻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡟⠀⠠⠁⡐⠀⠠⠐⠀⠙⠿⣆⠀⢂⣠⣬⡴⣾⠆⠁⠠⠈⢀⣼⠏⠀⠄⠂⠈⠄⠐⢀⢸⡆⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡇⠂⠁⡀⠄⠂⣁⣠⣬⣴⣶⣟⠿⣋⠁⠀⣰⠏⠀⠠⠁⣰⡾⠹⡇⢀⠐⢈⠠⠈⠀⠄⠠⡇⠈⢷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⣇⣤⣦⠀⠠⣸⡿⣻⠟⠋⠛⢿⣧⠉⢠⡞⠁⡀⠐⣠⡶⠋⢀⣀⣿⡄⠀⠂⠠⢀⠁⡄⡀⡇⢀⢺⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⢛⡇
-// ⠀⣿⣿⣿⠘⢷⣿⢠⡏⠳⠦⣤⣼⠃⣼⣣⠤⠶⠖⢛⣽⣿⣭⣁⠀⣯⠀⠠⠁⡐⠀⢸⣧⠐⡇⠀⡈⣇⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣠⣤⣶⡖⣿⠉⠉⢳⣀⣠⣴⣾⣿⣿⣿⣿⢘⡇
-// ⠀⣿⣿⣿⡀⢈⡟⠘⣦⡀⠄⣰⠏⠀⠀⠀⠀⠀⢀⡽⠛⠙⢺⡻⣇⡷⠀⡐⠀⠄⠈⣼⢻⢸⠃⠄⠀⣽⠀⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢘⡇
-// ⠀⡟⣿⣿⣧⢘⡇⠀⠀⠉⠋⠁⠀⠀⠀⠀⠀⠀⣾⠙⠦⣤⢴⡇⣿⡏⠀⠄⠂⢈⢠⣏⣾⣾⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢨⡇
-// ⠀⡇⠈⣿⠙⣯⣷⡀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⢿⣠⠀⣠⡞⢠⣿⠅⡀⠂⠈⢠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢨⡇
-// ⠀⡇⠈⠹⢦⣈⡿⠙⣦⡀⠀⠈⠷⣀⣠⠀⠀⠀⠀⠉⠉⠁⢒⣿⡿⠀⠀⠂⢡⣿⣯⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢰⡇
-// ⠀⡇⡐⠀⡈⣹⢿⣖⠠⠙⢦⣄⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⡟⠀⢀⣢⣼⣿⣿⣷⣏⠼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠰⡇
-// ⠀⡇⠁⡀⢡⡟⠈⠙⠲⠦⣌⡿⢲⣤⠤⠤⠴⣖⢶⣾⣿⣿⠟⣁⣴⣾⣿⣿⣿⣿⣿⣿⠴⡹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣰⡇
-// ⠀⡇⣰⠦⠿⠷⡤⣄⡀⠀⠀⠉⢻⣆⠀⠀⠀⢻⡜⣿⣿⣿⣿⣿⣿⣿⣷⣬⣭⣹⣍⣏⣳⣱⢣⡏⠙⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠉⠉⠉⠉⠉⠉⠉⠉⠁⠀
-// ⠀⣷⠋⠀⠀⠀⠀⠀⠙⢷⢦⣀⢸⣇⣙⡷⢤⣀⣿⡘⣿⣿⣿⣿⣿⣿⠿⠟⣟⠉⣿⣿⣿⣿⣿⣷⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡏⠀⠀⠀⠀⠀⠀⠀⠈⢷⣉⡿⠬⠿⠤⣤⣀⣀⠙⢻⡿⠟⠋⠉⠀⠀⠀⢸⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⢸⡅⡖⡄⢿⠀⠀⠀⠀⠀⠈⣻⣿⣿⣿⣷⣶⣦⣬⡙⠾⣄⠀⠀⠀⠀⠀⠀⢸⢼⣃⠉⢉⠋⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⡇⢧⡝⠸⠆⠀⠀⢸⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣬⣳⣄⠀⠀⠀⠀⢸⣾⣿⣿⣿⣿⣦⣀⠈⠻⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠒⠢⢤⣀⠀⠀⠀⠀
-// ⠀⡇⠀⠀⠀⠀⠀⠀⠈⣇⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠷⣄⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡗⠦⢄⣀⠀⠉⠑⠲⡆
-// ⠀⣿⠀⠀⣀⣠⡤⠶⣚⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⣶⡀⠙⢧⡄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣀⠙⢻⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠈⠉⠓⣶⢤⡇
-// ⠀⣿⠶⣛⣭⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠈⢻⣆⠀⠹⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠘⣧⢠⠏⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⡟⢦⡀
-// ⠀⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠙⣷⡀⣿⣿⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⣿⣿⡀⠙⢿⡆⠠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⢀⡴⠋⢸⡇
-// ⠀⡇⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠈⢳⣿⣿⣿⣿⣿⣿⡟⠃⣾⣿⣿⣿⣿⣿⣿⡇⢘⣏⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡴⠞⠋⢀⠐⢸⡇
-// ⠀⡇⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡿⠟⢃⠀⢠⣿⣿⣿⣿⣿⣿⣿⡇⠘⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⢀⠀⠄⢸⡇
-// ⠀⡇⠈⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠉⠛⠛⠛⠛⠛⠛⠓⠖⠲⠛⠋⠁⠐⠈⡀⠄⠈⠙⠻⢿⣿⣿⣿⣿⣧⡄⢹⡇⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠠⠈⢸⡇
-// ⠀⡇⠀⠌⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⡐⠀⠄⠠⠐⢀⠐⠠⠀⠂⠄⠂⢁⠈⠄⠠⠐⠈⡀⠄⠂⠙⢿⣿⣿⣿⠇⢼⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣎⡀⠐⢸⡇
-// ⠀⡇⠂⠀⠺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⢀⠠⠈⡀⢂⠐⡀⢂⠀⡁⠐⡀⠌⡀⢈⠀⢂⠁⡐⠀⡐⠀⠄⡀⠙⠿⣿⣦⠈⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡄⢸⡇
-// ⠀⡇⠠⠁⠄⢻⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠄⠠⠀⠔⠠⠀⠄⠠⠀⡐⠠⠁⠠⠀⠄⠠⠈⠠⠀⠄⠐⠠⠈⠄⠠⠀⠄⠈⠙⠛⢉⡿⣻⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⢳⣸⡇
-// ⠀⠓⠒⠒⠒⠚⠻⣿⣿⣿⣿⣿⣿⡿⠓⠒⠒⠒⠒⠒⠒⠒⠒⠒⠓⠒⠒⠒⠒⠒⠚⠒⠒⠓⠒⠚⠒⠒⠒⠒⠒⠒⠒⠓⠒⠒⠚⠓⠛⠒⠒⠚⠒⠓⠚⠚⠓⠛⠛⠛⠛⠛⠛⠚⠒⠃

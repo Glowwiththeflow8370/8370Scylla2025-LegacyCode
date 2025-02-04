@@ -11,7 +11,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class TheTickler extends SubsystemBase {
-  /** Creates a new TheTickler. */
+  /** Creates TheTickler. */
 
   private SparkMax rightTicklerMotor, leftTicklerMotor;
   private SparkMaxConfig rightTicklerConfig, leftTicklerConfig;

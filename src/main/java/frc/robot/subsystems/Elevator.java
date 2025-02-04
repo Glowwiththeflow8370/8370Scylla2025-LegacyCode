@@ -5,11 +5,14 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
   /** Creates a new Spark. */
@@ -22,11 +25,16 @@ public class Elevator extends SubsystemBase {
   SparkMaxConfig elevatorMotorFollowerConfig = new SparkMaxConfig();
   
   public Elevator() {
-    elevatorMotor = new SparkMax(0, MotorType.kBrushless);
-    elevatorMotorFollower = new SparkMax(1, MotorType.kBrushless);  
+    elevatorMotor = new SparkMax(ElevatorConstants.ElevatorMotor, MotorType.kBrushless);
+    elevatorMotorFollower = new SparkMax(ElevatorConstants.ElevatorMotorFollower, MotorType.kBrushless);  
     
     elevatorMotorConfig.idleMode(IdleMode.kBrake);
+
+    elevatorMotorFollowerConfig.idleMode(IdleMode.kBrake);
     elevatorMotorFollowerConfig.follow(elevatorMotor);
+
+    elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    elevatorMotorFollower.configure(elevatorMotorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
   public void moveMotor(double x) {
     elevatorMotor.set(x);
