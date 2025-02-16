@@ -1,0 +1,57 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.subsystems;
+
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.IntakeConstants;
+
+public class Wrist extends SubsystemBase {
+  private SparkMax WristMotor;
+  private SparkMaxConfig WristMotorConfig;
+
+  private AbsoluteEncoder WristEncoder;
+  
+  /** Creates a new Wrist. */
+  public Wrist() {
+    WristMotor = new SparkMax(IntakeConstants.WristMotor, MotorType.kBrushless);
+
+    WristMotorConfig = new SparkMaxConfig();
+    WristMotorConfig.idleMode(IdleMode.kBrake);
+    WristMotorConfig.encoder
+      .positionConversionFactor(ConversionConstants.AngleConversionValue);
+
+    WristEncoder = WristMotor.getAbsoluteEncoder();
+    
+    WristMotor.configure(WristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  public void rotateWrist(double value){
+    WristMotor.set(value);
+  }
+
+  public double getWristAngle(){
+    // This should return an angle
+    return WristEncoder.getPosition();
+  }
+
+  public void displayWristAngle(){
+    System.out.println("Wrist Angle: " + getWristAngle());
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+  }
+}

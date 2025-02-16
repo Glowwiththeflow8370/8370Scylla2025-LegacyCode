@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPLTVController;
-import com.revrobotics.spark.config.SparkMaxConfig;
+//import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
@@ -22,13 +22,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SPI;
+//import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
+//import frc.robot.commands.Drive;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
@@ -39,11 +39,11 @@ public class Drivetrain extends SubsystemBase {
   // Encoder Objects
   private Encoder rightEncoder, leftEncoder;
 
-  // NavX Gyro
-  //AHRS NavX;
+  //NavX Gyro
+  AHRS NavX;
 
   // Emergency Gyro (In case NavX does not want to work)
-  private ADXRS450_Gyro gyro;
+  //private ADXRS450_Gyro gyro;
 
   // Configuration objects
   private TalonFXConfiguration leftConfig, rightConfig;
@@ -52,6 +52,10 @@ public class Drivetrain extends SubsystemBase {
   private ChassisSpeeds chassisSpeeds;
   private DifferentialDriveKinematics kinematics;
   private DifferentialDriveOdometry odometry;
+
+  // Misc
+  private DrivetrainConstants DriveConsts;
+  private static RobotConfig config;
 
   public Drivetrain() {
 
@@ -70,10 +74,7 @@ public class Drivetrain extends SubsystemBase {
 
     // NavX Gyro (Test All port configs to find which one the
     // NavX is connected to) * I think ours is fried lol
-    //NavX = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k4Hz);
-    
-    // Emergency Gyro (It should work *hopefully)
-    gyro = new ADXRS450_Gyro();
+    NavX = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k4Hz);
 
     //--------
     // Motors
@@ -84,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
 
     rightBack = new TalonFX(DrivetrainConstants.rightBackPort);
     leftBack = new TalonFX(DrivetrainConstants.leftBackPort);
-    
+
     //----------------
     // Configurations
     //----------------
@@ -114,10 +115,12 @@ public class Drivetrain extends SubsystemBase {
     //----------------
 
     // Fine tune these
-    chassisSpeeds = new ChassisSpeeds();
+    chassisSpeeds = new ChassisSpeeds(2.0, 0, 1.0);
     kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(DrivetrainConstants.trackWidth));
-    odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
-    
+    odometry = new DifferentialDriveOdometry(NavX.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+    DriveConsts = new DrivetrainConstants();
+    config = DriveConsts.robotConfig;
+
     try {
       
     AutoBuilder.configure(
@@ -126,7 +129,7 @@ public class Drivetrain extends SubsystemBase {
         this::getCurrentSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         this::tankRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
         new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
-        DrivetrainConstants.robotConfig, // The robot configuration
+        config, // The robot configuration
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red alliance
           // This will flip the path being followed to the red side of the field.
@@ -141,10 +144,11 @@ public class Drivetrain extends SubsystemBase {
           this // Reference to this subsystem to set requirements
     );
 
-    } catch (Exception e) {
+    } catch (NullPointerException e) {
         System.out.println("Failed to configure autobuilder");
     }
-  }
+
+  } // End of Constructor (Do not comment this bracket out)
 
   // Drive Command
   public void tank(double x, double y){
@@ -152,38 +156,45 @@ public class Drivetrain extends SubsystemBase {
     rightFront.set(x);
     leftFront.set(y);
   }
-  
+
+  // Get encoder Values
   public double getAverageEncoderValues(){
     return ((rightEncoder.getDistance() + leftEncoder.getDistance())/2.0); 
+  }
+
+  // Get NavX encoder Values
+  public double getAngle(){
+    return NavX.getAngle();
   }
 
   // Remember to figure out the setup of the
   // Commands below:
   public Pose2d getPose(){
-    return null;
+    return odometry.getPoseMeters();
   }
 
   public void resetPose(Pose2d initialStartingPose){
-      
+      odometry.resetPose(initialStartingPose);
   }
 
   public ChassisSpeeds getCurrentSpeeds(){
     // Fix this later
-    return ChassisSpeeds.fromRobotRelativeSpeeds(null,new Rotation2d(2.2));
+    return ChassisSpeeds.fromRobotRelativeSpeeds(chassisSpeeds, new Rotation2d(2.2));
   }
 
   // Tank Drive based on relative speeds
   public void tankRelative(ChassisSpeeds speeds){
-
+    // Debug it for now
+    System.out.println("Running");
   }
 
   // Extra Debug commands
   public void displayEncoderValues(){
-      System.out.println("Average Encoder Values: " + getAverageEncoderValues());
+      System.out.println("Drivetrain Average Encoder Values: " + getAverageEncoderValues());
   }
 
   public void displayGyroValues(){
-      System.out.println("Angle: " + gyro.getAngle());
+      System.out.println("Drivetrain Angle: " + getAngle());
   }
   
   @Override
@@ -191,7 +202,7 @@ public class Drivetrain extends SubsystemBase {
     // This method will be called once per scheduler run
     
     // Call the debug commands
-    // displayEncoderValues();
-    // displayGyroValues();
+    displayEncoderValues();
+    displayGyroValues();
   }
 }

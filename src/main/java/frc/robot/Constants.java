@@ -17,7 +17,19 @@ import com.pathplanner.lib.config.RobotConfig;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kStickControllerPort = 1;
   }
+
+  public static class ConversionConstants{
+    public static final double AngleConversionValue = 360;
+  }
+
+  public static class CompConsts{
+
+    public static final boolean isCompetiton = false;
+
+  }
+
   public static class DrivetrainConstants{
     // Encoder Channels
     public static final int rightEncoderChanA = 0;
@@ -42,7 +54,7 @@ public final class Constants {
 
     // Values (Kine)
 
-    public static final double trackWidth = 12;
+    public static final double trackWidth = 29;
 
     // Kine Obj
 
@@ -60,7 +72,8 @@ public final class Constants {
       try{
         robotConfig = RobotConfig.fromGUISettings();
       }catch(Exception e){
-        e.printStackTrace();
+        //e.printStackTrace();
+        System.out.println("Error setting robot config");
       }
     }
   }
@@ -70,7 +83,7 @@ public final class Constants {
     public static final int ClimbMotor = 5;
     public static final int ClimbMotorFollower = 6;
     // Running Values
-    public static final double ClimbRunningValue = 0.2;
+    public static final double ClimbRunningValue = 0.5;
   }
 
   public static class ElevatorConstants{
@@ -78,12 +91,24 @@ public final class Constants {
     public static final int ElevatorMotor = 7;
     public static final int ElevatorMotorFollower = 8;
     // Elevator Motor Run Value
-    public static final double ElevatorMotorRunValue = 0.20;
+    public static final double ElevatorMotorRunValue = 0.4;
   }
 
-  public static class CompConsts{
+  public static class ArmConstants{
+    // Motor Channels
+    public static final int ArmMotor = 9;
+    public static final int ArmMotorFollower = 10;
+    // Arm run value
+    public static final double ArmRunValue = 0.3;
+  }
 
-    public static final boolean isCompetiton = false;
+  public static class IntakeConstants{
+    // Motor Channels
+    public static final int WristMotor = 11;
+    public static final int IntakeMotor = 12;
 
+    // Run values
+    public static final double IntakeRunValue = 0.2;
+    public static final double WristRunValue = 0.2;
   }
 }

@@ -24,7 +24,9 @@ public class Robot extends TimedRobot {
   // Declare Subsystems (For dependencies)
   public static Drivetrain Drivetrain = new Drivetrain();
   public static Climb Climb = new Climb();
-
+  public static Arm Arm = new Arm();
+  public static Intake Intake = new Intake();
+  public static Wrist Wrist = new Wrist();
   public static Elevator Elevator = new Elevator();
 
   /**

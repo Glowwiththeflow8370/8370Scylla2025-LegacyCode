@@ -10,12 +10,19 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
+import frc.robot.commands.arm.ArmDown;
+import frc.robot.commands.arm.ArmStop;
+import frc.robot.commands.arm.ArmUp;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
 import frc.robot.commands.elevate.ElevatorDown;
 import frc.robot.commands.elevate.ElevatorStop;
 import frc.robot.commands.elevate.ElevatorUp;
+import frc.robot.commands.intake.RotateWrist;
+import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.intake.StopIntake;
+import frc.robot.commands.intake.StopWrist;
 
 import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -27,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -56,17 +64,35 @@ public class RobotContainer {
   ElevatorDown elevatorDown = new ElevatorDown(Robot.Elevator);
   ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
 
+  // Arm Commands
+  ArmUp armUp = new ArmUp(Robot.Arm);
+  ArmDown armDown = new ArmDown(Robot.Arm);
+  ArmStop armStop = new ArmStop(Robot.Arm);
+
+  // Intake Commands
+  RunIntake forwardIntake = new RunIntake(Robot.Intake, false);
+  RunIntake reverseIntake = new RunIntake(Robot.Intake, true);
+  StopIntake stopIntake = new StopIntake(Robot.Intake);
+  // Wrist (Aux of Intake), the angle has yet to be used as of yet
+  RotateWrist rotateWristReverse = new RotateWrist(Robot.Wrist,true,  90);
+  RotateWrist rotateWrist = new RotateWrist(Robot.Wrist,false,  90);
+  StopWrist stopWrist = new StopWrist(Robot.Wrist);
   // If needed, this is where the pathplanner autos will go
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
 
-  SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-    (stream) -> CompConsts.isCompetiton
-      ? stream.filter(auto -> auto.getName().startsWith("comp"))
-      : stream
-  );
+  private final CommandJoystick m_Joystick = 
+      new CommandJoystick(OperatorConstants.kStickControllerPort);
+
+  // SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+  //   (stream) -> CompConsts.isCompetiton
+  //     ? stream.filter(auto -> auto.getName().startsWith("comp"))
+  //     : stream
+  // );
+
+  SendableChooser<Command> AutoChooser = new SendableChooser<>();
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -83,6 +109,9 @@ public class RobotContainer {
     // Set the default commands of the subsystems
     Robot.Climb.setDefaultCommand(climbStop);
     Robot.Elevator.setDefaultCommand(elevatorStop);
+    Robot.Arm.setDefaultCommand(armStop);
+    Robot.Wrist.setDefaultCommand(stopWrist);
+    Robot.Intake.setDefaultCommand(stopIntake);
   }
 
   /**
@@ -110,6 +139,21 @@ public class RobotContainer {
     // Elevator Buttons
     m_driverController.square().whileTrue(elevatorUp);
     m_driverController.cross().whileTrue(elevatorDown);
+
+    // Arm Buttons
+    // m_driverController.L1().whileTrue(armUp);
+    // m_driverController.R1().whileTrue(armDown);
+
+    m_driverController.pov(90).whileTrue(armUp);
+    m_driverController.pov(270).whileTrue(armDown);
+
+    // Intake/Arm buttons
+    m_driverController.L1().whileTrue(rotateWrist);
+    m_driverController.R1().whileTrue(rotateWristReverse);
+
+
+    m_driverController.L2().whileTrue(forwardIntake);
+    m_driverController.R2().whileTrue(reverseIntake);
   }
 
   /**

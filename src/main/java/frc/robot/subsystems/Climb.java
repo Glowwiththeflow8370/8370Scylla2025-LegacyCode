@@ -11,8 +11,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
-import edu.wpi.first.wpilibj2.command.Command;
+//import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimbConstants;
 
 public class Climb extends SubsystemBase {
   SparkMax ClimbMotor, ClimbMotorFollower;
@@ -21,14 +22,14 @@ public class Climb extends SubsystemBase {
 
   /** Creates a new Climb. */
   public Climb() {
-    ClimbMotor = new SparkMax(5, MotorType.kBrushless);
-    ClimbMotorFollower = new SparkMax(6, MotorType.kBrushless);
+    ClimbMotor = new SparkMax(ClimbConstants.ClimbMotor, MotorType.kBrushless);
+    ClimbMotorFollower = new SparkMax(ClimbConstants.ClimbMotorFollower, MotorType.kBrushless);
     
     ClimbMotorConfigs = new SparkMaxConfig();
     ClimbMotorConfigs.idleMode(IdleMode.kBrake);
 
     ClimbMotorFollowerConfigs = new SparkMaxConfig();
-    ClimbMotorFollowerConfigs.follow(ClimbMotor);
+    ClimbMotorFollowerConfigs.follow(ClimbMotor, true);
     ClimbMotorFollowerConfigs.idleMode(IdleMode.kBrake);
 
     ClimbMotorFollower.configure(ClimbMotorFollowerConfigs, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
