@@ -16,6 +16,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,10 +27,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DrivetrainConstants;
 //import frc.robot.commands.Drive;
-
+@Logged
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
 
@@ -42,9 +45,6 @@ public class Drivetrain extends SubsystemBase {
   //NavX Gyro
   AHRS NavX;
 
-  // Emergency Gyro (In case NavX does not want to work)
-  //private ADXRS450_Gyro gyro;
-
   // Configuration objects
   private TalonFXConfiguration leftConfig, rightConfig;
 
@@ -56,6 +56,8 @@ public class Drivetrain extends SubsystemBase {
   // Misc
   private DrivetrainConstants DriveConsts;
   private static RobotConfig config;
+
+  private SysIdRoutine routine;
 
   public Drivetrain() {
 
@@ -107,6 +109,10 @@ public class Drivetrain extends SubsystemBase {
     // Get the back motors to follow their respective front motors
     rightBack.setControl(new Follower(rightFront.getDeviceID(), false));
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
+
+    // Sysid stuff
+    routine = new SysIdRoutine(new SysIdRoutine.Config(), 
+    new SysIdRoutine.Mechanism(null, null, this));
 
     // Finish this by 2/8/25
 
@@ -162,9 +168,9 @@ public class Drivetrain extends SubsystemBase {
     return ((rightEncoder.getDistance() + leftEncoder.getDistance())/2.0); 
   }
 
-  // Get NavX encoder Values
+  // Get NavX encoder Values (The angle is offset by 7 inches)
   public double getAngle(){
-    return NavX.getAngle();
+    return NavX.getYaw();
   }
 
   // Remember to figure out the setup of the
@@ -185,7 +191,8 @@ public class Drivetrain extends SubsystemBase {
   // Tank Drive based on relative speeds
   public void tankRelative(ChassisSpeeds speeds){
     // Debug it for now
-    System.out.println("Running");
+    System.out.println("running");
+    tank((speeds.vxMetersPerSecond - speeds.vyMetersPerSecond), (speeds.vxMetersPerSecond + speeds.vyMetersPerSecond));
   }
 
   // Extra Debug commands
@@ -196,13 +203,22 @@ public class Drivetrain extends SubsystemBase {
   public void displayGyroValues(){
       System.out.println("Drivetrain Angle: " + getAngle());
   }
+
+  // SysId commands
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return routine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return routine.dynamic(direction);
+  }
   
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     
     // Call the debug commands
-    displayEncoderValues();
-    displayGyroValues();
+    // displayEncoderValues();
+    // displayGyroValues();
   }
 }

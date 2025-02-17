@@ -12,16 +12,20 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ConversionConstants;
 
-public class Arm extends SubsystemBase {
+@Logged
+public class Arm extends SubsystemBase{
   /** Creates TheTickler. */
 
   private SparkMax ArmMotor, ArmMotorFollower;
   private SparkMaxConfig ArmConfig, ArmFollowerConfig;
   private AbsoluteEncoder ArmEncoder;
+  private DigitalInput ArmLimitSwitch;
 
   // This is the Coral/Ball intake
   public Arm() {
@@ -44,17 +48,29 @@ public class Arm extends SubsystemBase {
     
     ArmEncoder = ArmMotor.getAbsoluteEncoder();
 
+    // Create Limit Switches
+    ArmLimitSwitch = new DigitalInput(5);
+
   }
 
   public void RunArm(double speed){
 
     // add some logic here to stop the motor if it
     // hits a certain angle
-    ArmMotor.set(speed);
+    if(ArmLimitSwitch.get()){
+      ArmMotor.set(0);
+    }
+    // else if(getArmAngle() >= Constants.ArmConstants.LowerBoundArmAngleCodeStop){
+
+    // }
+    else{
+      ArmMotor.set(speed);
+    }
+    
   }
 
   public double getArmAngle(){
-    return ArmEncoder.getPosition()/1.826;
+    return ArmEncoder.getPosition();
   }
 
   public void displayArmAngle(){

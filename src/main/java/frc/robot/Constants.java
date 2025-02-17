@@ -91,13 +91,18 @@ public final class Constants {
     public static final int ElevatorMotor = 7;
     public static final int ElevatorMotorFollower = 8;
     // Elevator Motor Run Value
-    public static final double ElevatorMotorRunValue = 0.4;
+    public static final double ElevatorMotorRunValue = 0.5;
   }
 
   public static class ArmConstants{
     // Motor Channels
     public static final int ArmMotor = 9;
     public static final int ArmMotorFollower = 10;
+
+    // Code Stops (Such Verbose)
+    public static final double UpperBoundArmAngleCodeStop = 0.0;
+    public static final double LowerBoundArmAngleCodeStop = 0.0;
+
     // Arm run value
     public static final double ArmRunValue = 0.3;
   }

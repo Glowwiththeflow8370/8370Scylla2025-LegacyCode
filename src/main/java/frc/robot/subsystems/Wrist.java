@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -13,11 +12,13 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.IntakeConstants;
 
-public class Wrist extends SubsystemBase {
+@Logged
+public class Wrist extends SubsystemBase{
   private SparkMax WristMotor;
   private SparkMaxConfig WristMotorConfig;
 
@@ -29,7 +30,7 @@ public class Wrist extends SubsystemBase {
 
     WristMotorConfig = new SparkMaxConfig();
     WristMotorConfig.idleMode(IdleMode.kBrake);
-    WristMotorConfig.encoder
+    WristMotorConfig.absoluteEncoder
       .positionConversionFactor(ConversionConstants.AngleConversionValue);
 
     WristEncoder = WristMotor.getAbsoluteEncoder();
@@ -43,7 +44,7 @@ public class Wrist extends SubsystemBase {
 
   public double getWristAngle(){
     // This should return an angle
-    return WristEncoder.getPosition();
+    return WristEncoder.getPosition()/1.826;
   }
 
   public void displayWristAngle(){
@@ -53,5 +54,6 @@ public class Wrist extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    displayWristAngle();
   }
 }

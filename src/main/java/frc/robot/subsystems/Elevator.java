@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -11,9 +12,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
+@Logged
 public class Elevator extends SubsystemBase {
   /** Creates a new Spark. */
   
@@ -23,34 +27,50 @@ public class Elevator extends SubsystemBase {
 
   SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
   SparkMaxConfig elevatorMotorFollowerConfig = new SparkMaxConfig();
+
+  AbsoluteEncoder RightElevatorEncoder, LeftElevatorEncoder;
   
   public Elevator() {
     elevatorMotor = new SparkMax(ElevatorConstants.ElevatorMotor, MotorType.kBrushless);
     elevatorMotorFollower = new SparkMax(ElevatorConstants.ElevatorMotorFollower, MotorType.kBrushless);  
     
+    // Elevator Motor Config
     elevatorMotorConfig.idleMode(IdleMode.kBrake);
+    elevatorMotorConfig
+      .absoluteEncoder
+      .positionConversionFactor
+      (Constants.ConversionConstants.AngleConversionValue);
 
+    // It's followers config
     elevatorMotorFollowerConfig.idleMode(IdleMode.kBrake);
     elevatorMotorFollowerConfig.follow(elevatorMotor);
+    elevatorMotorFollowerConfig.
+      encoder
+      .positionConversionFactor
+      (Constants.ConversionConstants.AngleConversionValue);
 
     elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotorFollower.configure(elevatorMotorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Create Encoders
+    RightElevatorEncoder = elevatorMotor.getAbsoluteEncoder();
+    LeftElevatorEncoder = elevatorMotorFollower.getAbsoluteEncoder();
   }
   public void moveMotor(double x) {
     elevatorMotor.set(x);
-    
   }
 
   // This will be a debug method for the elevator
   // It will be used for elevator height later : )
-  public double getEncoderValues(){
-    return 0.0;
+  public double getAverageEncoderValues(){
+    return (RightElevatorEncoder.getPosition() + LeftElevatorEncoder.getPosition()) / 2;
   }
   
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    System.out.println("Elev Enc Vals: " + getAverageEncoderValues());
   }
 }
 

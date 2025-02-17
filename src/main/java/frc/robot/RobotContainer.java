@@ -30,6 +30,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
+@Logged
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -83,24 +86,26 @@ public class RobotContainer {
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
 
-  private final CommandJoystick m_Joystick = 
-      new CommandJoystick(OperatorConstants.kStickControllerPort);
+  // private final CommandJoystick m_Joystick = 
+  //     new CommandJoystick(OperatorConstants.kStickControllerPort);
 
-  // SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-  //   (stream) -> CompConsts.isCompetiton
-  //     ? stream.filter(auto -> auto.getName().startsWith("comp"))
-  //     : stream
-  // );
+  SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+    (stream) -> CompConsts.isCompetiton
+      ? stream.filter(auto -> auto.getName().startsWith("comp"))
+      : stream
+  );
 
-  SendableChooser<Command> AutoChooser = new SendableChooser<>();
+  //SendableChooser<Command> AutoChooser = new SendableChooser<>();
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
 
+    // Configure Data that is sent to the Dashboard
+
     // Good to know this works!
-    AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
-    //AutoChooser.addOption("Placeholder", null);
+    // AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
+    // AutoChooser.addOption("Placeholder", null);
     SmartDashboard.putData("Choices", AutoChooser);
 
     // Configure the trigger bindings

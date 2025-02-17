@@ -4,11 +4,23 @@
 
 package frc.robot;
 
+import java.util.logging.Logger;
+
+import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.epilogue.EpilogueConfiguration;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.logging.EpilogueBackend;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.*;
+import edu.wpi.first.epilogue.logging.*;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -16,6 +28,7 @@ import frc.robot.subsystems.*;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+@Logged
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
@@ -37,6 +50,14 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+
+    // Going to put the logging stuff here
+    DataLogManager.start();
+    URCL.start();
+    DriverStation.startDataLog(DataLogManager.getLog());
+    SignalLogger.setPath("/U/logs");
+    SignalLogger.start();
+
     m_robotContainer = new RobotContainer();
   }
 
@@ -49,6 +70,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // Get angles of subsystems
+    SmartDashboard.putNumber("Drivetrain Angle", Drivetrain.getAngle());
+    SmartDashboard.putNumber("Drivetrain Encoder Pos", Drivetrain.getAverageEncoderValues());
+    SmartDashboard.putNumber("Arm Angle", Arm.getArmAngle());
+    SmartDashboard.putNumber("Wrist Angle", Wrist.getWristAngle());
+    SmartDashboard.putNumber("Elevator Position (Deg)", Elevator.getAverageEncoderValues());
+    SmartDashboard.putNumber("Climb Angle", Climb.getClimbEncoderValues());
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

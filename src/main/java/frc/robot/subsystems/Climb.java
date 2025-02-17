@@ -11,10 +11,13 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import edu.wpi.first.epilogue.Logged;
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ClimbConstants;
 
+@Logged
 public class Climb extends SubsystemBase {
   SparkMax ClimbMotor, ClimbMotorFollower;
 
@@ -27,6 +30,10 @@ public class Climb extends SubsystemBase {
     
     ClimbMotorConfigs = new SparkMaxConfig();
     ClimbMotorConfigs.idleMode(IdleMode.kBrake);
+    ClimbMotorConfigs
+    .absoluteEncoder
+    .positionConversionFactor
+    (Constants.ConversionConstants.AngleConversionValue);
 
     ClimbMotorFollowerConfigs = new SparkMaxConfig();
     ClimbMotorFollowerConfigs.follow(ClimbMotor, true);
@@ -43,9 +50,16 @@ public class Climb extends SubsystemBase {
     // Create theoretical code for a more advanced climbing mechanism
     // Possibly using encoders.
   }
+
   public void stopClimb(){
     ClimbMotor.set(0);
   }
+
+  public double getClimbEncoderValues(){
+    return 0;
+  }
+
+
 
   @Override
   public void periodic() {
