@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.config.RobotConfig;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -43,6 +45,9 @@ public final class Constants {
     public static final int leftBackPort = 3;
     // "Physics" constants (Kine/Odome)
     public static final double MeasurementPlaceholder = 0.0;
+
+    public static final double driveReduction = 1;
+    public static final double wheelRadius = Units.inchesToMeters(3);
 
     // Misc
     public static final int multiplier = 1;

@@ -42,6 +42,10 @@ public class Wrist extends SubsystemBase{
     WristMotor.set(value);
   }
 
+  public void stopWrist(){
+    WristMotor.set(0);
+  }
+
   public double getWristAngle(){
     // This should return an angle
     return WristEncoder.getPosition()/1.826;
@@ -54,6 +58,6 @@ public class Wrist extends SubsystemBase{
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    displayWristAngle();
+    // displayWristAngle();
   }
 }

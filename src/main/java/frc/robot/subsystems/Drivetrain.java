@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,7 +23,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 //import edu.wpi.first.wpilibj.SPI;
@@ -30,6 +34,7 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 //import frc.robot.commands.Drive;
 @Logged
@@ -39,8 +44,12 @@ public class Drivetrain extends SubsystemBase {
   // Motor Objects
   private TalonFX rightFront, rightBack, leftFront, leftBack;
 
+
+  private StatusSignal<Angle> leftEncoder;
+  private StatusSignal<Angle> rightEncoder;
+
   // Encoder Objects
-  private Encoder rightEncoder, leftEncoder;
+  //private Encoder rightEncoder, leftEncoder;
 
   //NavX Gyro
   AHRS NavX;
@@ -68,11 +77,11 @@ public class Drivetrain extends SubsystemBase {
     //------------------------------------------
     
     // Right encoder
-    rightEncoder = new Encoder(DrivetrainConstants.rightEncoderChanA, 
-    DrivetrainConstants.rightEncoderChanB,false,EncodingType.k4X);
+    // rightEncoder = new Encoder(DrivetrainConstants.rightEncoderChanA, 
+    // DrivetrainConstants.rightEncoderChanB,true,EncodingType.k4X);
     // Left encoder
-    leftEncoder = new Encoder(DrivetrainConstants.leftEncoderChanA,
-    DrivetrainConstants.leftEncoderChanB,false,EncodingType.k4X);
+    // leftEncoder = new Encoder(DrivetrainConstants.leftEncoderChanA,
+    // DrivetrainConstants.leftEncoderChanB,false,EncodingType.k4X);
 
     // NavX Gyro (Test All port configs to find which one the
     // NavX is connected to) * I think ours is fried lol
@@ -96,11 +105,16 @@ public class Drivetrain extends SubsystemBase {
     leftConfig = new TalonFXConfiguration();
     // Invert left motor
     leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.driveReduction;
 
     // Create and set configurations (For right motor)
     rightConfig = new TalonFXConfiguration();
     // Set the right motor to turn in the opposite direction of the left motor
     rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.driveReduction;
+
+    rightEncoder = rightFront.getPosition();
+    leftEncoder = leftFront.getPosition();
 
     // Apply the configuration thing needed
     rightFront.getConfigurator().apply(rightConfig);
@@ -121,9 +135,9 @@ public class Drivetrain extends SubsystemBase {
     //----------------
 
     // Fine tune these
-    chassisSpeeds = new ChassisSpeeds(2.0, 0, 1.0);
+    chassisSpeeds = new ChassisSpeeds(1.0, 0, 1.0);
     kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(DrivetrainConstants.trackWidth));
-    odometry = new DifferentialDriveOdometry(NavX.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+    odometry = new DifferentialDriveOdometry(NavX.getRotation2d(), leftEncoder.getValueAsDouble(), rightEncoder.getValueAsDouble());
     DriveConsts = new DrivetrainConstants();
     config = DriveConsts.robotConfig;
 
@@ -165,7 +179,17 @@ public class Drivetrain extends SubsystemBase {
 
   // Get encoder Values
   public double getAverageEncoderValues(){
-    return ((rightEncoder.getDistance() + leftEncoder.getDistance())/2.0); 
+    return ((rightEncoder.getValueAsDouble() + leftEncoder.getValueAsDouble())/2.0); 
+  }
+
+  // Right encoder
+  public double getRightEncValues(){
+    return rightEncoder.getValueAsDouble();
+  }
+
+  // Left encoder
+  public double getLeftEncValues(){
+    return leftEncoder.getValueAsDouble();
   }
 
   // Get NavX encoder Values (The angle is offset by 7 inches)
@@ -180,7 +204,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetPose(Pose2d initialStartingPose){
+      resetEncoders();
       odometry.resetPose(initialStartingPose);
+  }
+
+  public void resetEncoders(){
+      rightEncoder.refresh();
+      leftEncoder.refresh();
   }
 
   public ChassisSpeeds getCurrentSpeeds(){
@@ -190,9 +220,8 @@ public class Drivetrain extends SubsystemBase {
 
   // Tank Drive based on relative speeds
   public void tankRelative(ChassisSpeeds speeds){
-    // Debug it for now
-    System.out.println("running");
-    tank((speeds.vxMetersPerSecond - speeds.vyMetersPerSecond), (speeds.vxMetersPerSecond + speeds.vyMetersPerSecond));
+    // Super close DONT GIVE UP!!!
+    tank((speeds.vxMetersPerSecond), (speeds.vxMetersPerSecond));
   }
 
   // Extra Debug commands
@@ -204,7 +233,7 @@ public class Drivetrain extends SubsystemBase {
       System.out.println("Drivetrain Angle: " + getAngle());
   }
 
-  // SysId commands
+  // SysId commands (Could be Used)
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return routine.quasistatic(direction);
   }
@@ -216,7 +245,11 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    
+
+    double leftPosMeters = leftEncoder.getValueAsDouble();
+    double rightPosMeters = rightEncoder.getValueAsDouble();
+
+    odometry.update(Rotation2d.fromDegrees(getAngle()), new DifferentialDriveWheelPositions(leftPosMeters, rightPosMeters));
     // Call the debug commands
     // displayEncoderValues();
     // displayGyroValues();

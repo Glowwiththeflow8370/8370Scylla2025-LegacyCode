@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.5368622448979594,
-        "y": 5.222608418367347
+        "x": 5.267984693877552,
+        "y": 5.319610969387754
       },
       "prevControl": {
-        "x": 2.820535714285714,
-        "y": 6.289636479591837
+        "x": 5.894770408163266,
+        "y": 6.349330357142857
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "BlueStart1",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

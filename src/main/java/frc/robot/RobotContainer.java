@@ -26,6 +26,7 @@ import frc.robot.commands.intake.StopWrist;
 
 import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
@@ -71,7 +72,6 @@ public class RobotContainer {
   ArmUp armUp = new ArmUp(Robot.Arm);
   ArmDown armDown = new ArmDown(Robot.Arm);
   ArmStop armStop = new ArmStop(Robot.Arm);
-
   // Intake Commands
   RunIntake forwardIntake = new RunIntake(Robot.Intake, false);
   RunIntake reverseIntake = new RunIntake(Robot.Intake, true);
@@ -80,7 +80,8 @@ public class RobotContainer {
   RotateWrist rotateWristReverse = new RotateWrist(Robot.Wrist,true,  90);
   RotateWrist rotateWrist = new RotateWrist(Robot.Wrist,false,  90);
   StopWrist stopWrist = new StopWrist(Robot.Wrist);
-  // If needed, this is where the pathplanner autos will go
+  // If needed, this is where the pathplanner autos will go (putting the pathplanner)
+  // Named commands here
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller m_driverController =
@@ -88,21 +89,29 @@ public class RobotContainer {
 
   // private final CommandJoystick m_Joystick = 
   //     new CommandJoystick(OperatorConstants.kStickControllerPort);
-
-  SendableChooser<Command> AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-    (stream) -> CompConsts.isCompetiton
-      ? stream.filter(auto -> auto.getName().startsWith("comp"))
-      : stream
-  );
-
+  SendableChooser<Command> AutoChooser;
   //SendableChooser<Command> AutoChooser = new SendableChooser<>();
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // Set the default commands of the subsystems
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
+    Robot.Climb.setDefaultCommand(climbStop);
+    Robot.Elevator.setDefaultCommand(elevatorStop);
+    Robot.Arm.setDefaultCommand(armStop);
+    Robot.Wrist.setDefaultCommand(stopWrist);
+    Robot.Intake.setDefaultCommand(stopIntake);
+
+    // Setup Named Commands
+    NamedCommands.registerCommand("Elevator", elevatorUp);
+    NamedCommands.registerCommand("EjectCoral", forwardIntake);
 
     // Configure Data that is sent to the Dashboard
-
+    AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+    (stream) -> CompConsts.isCompetiton
+      ? stream.filter(auto -> auto.getName().startsWith("comp"))
+      : stream
+  );
     // Good to know this works!
     // AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
     // AutoChooser.addOption("Placeholder", null);
@@ -110,13 +119,6 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-
-    // Set the default commands of the subsystems
-    Robot.Climb.setDefaultCommand(climbStop);
-    Robot.Elevator.setDefaultCommand(elevatorStop);
-    Robot.Arm.setDefaultCommand(armStop);
-    Robot.Wrist.setDefaultCommand(stopWrist);
-    Robot.Intake.setDefaultCommand(stopIntake);
   }
 
   /**

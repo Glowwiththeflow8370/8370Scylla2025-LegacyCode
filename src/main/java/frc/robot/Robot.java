@@ -73,6 +73,8 @@ public class Robot extends TimedRobot {
     // Get angles of subsystems
     SmartDashboard.putNumber("Drivetrain Angle", Drivetrain.getAngle());
     SmartDashboard.putNumber("Drivetrain Encoder Pos", Drivetrain.getAverageEncoderValues());
+    SmartDashboard.putNumber("Right Drivetrain enc pos", Drivetrain.getRightEncValues());
+    SmartDashboard.putNumber("Left Drivetrain enc pos", Drivetrain.getLeftEncValues());
     SmartDashboard.putNumber("Arm Angle", Arm.getArmAngle());
     SmartDashboard.putNumber("Wrist Angle", Wrist.getWristAngle());
     SmartDashboard.putNumber("Elevator Position (Deg)", Elevator.getAverageEncoderValues());
