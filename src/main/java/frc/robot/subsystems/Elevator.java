@@ -4,19 +4,27 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+// import frc.robot.Constants;
+// import frc.robot.Constants.ArmConstants;
+// import edu.wpi.first.epilogue.Logged;
+// import edu.wpi.first.wpilibj.DutyCycleEncoder;
+// import com.revrobotics.AbsoluteEncoder;
+// import com.revrobotics.spark.SparkMax;
+// import com.revrobotics.spark.SparkBase.PersistMode;
+// import com.revrobotics.spark.SparkBase.ResetMode;
+// import com.revrobotics.spark.SparkLowLevel.MotorType;
+// import com.revrobotics.spark.config.SparkMaxConfig;
+// import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.units.measure.Angle;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
+
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.ElevatorConstants;
 
@@ -25,33 +33,36 @@ public class Elevator extends SubsystemBase {
   /** Creates a new Spark. */
   
   // The only subsystem not made by me (WE NEED MORE OF THSESSS)
-  SparkMax elevatorMotor;
-  SparkMax elevatorMotorFollower;
+  TalonFX elevatorMotor;
+  TalonFX elevatorMotorFollower;
 
-  SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
-  SparkMaxConfig elevatorMotorFollowerConfig = new SparkMaxConfig();
+  TalonFXConfiguration elevatorMotorConfig = new TalonFXConfiguration();
+  TalonFXConfiguration elevatorMotorFollowerConfig = new TalonFXConfiguration();
 
-  DutyCycleEncoder ElevatorEncoder;
+  StatusSignal<Angle> elevatorEncoder;
+
+  // DutyCycleEncoder ElevatorEncoder;
   
   public Elevator() {
-    elevatorMotor = new SparkMax(ElevatorConstants.ElevatorMotor, MotorType.kBrushless);
-    elevatorMotorFollower = new SparkMax(ElevatorConstants.ElevatorMotorFollower, MotorType.kBrushless);  
+    elevatorMotor = new TalonFX(ElevatorConstants.ElevatorMotor);
+    elevatorMotorFollower = new TalonFX(ElevatorConstants.ElevatorMotorFollower);  
     
     // Elevator Motor Config
-    elevatorMotorConfig.idleMode(IdleMode.kBrake);
-    elevatorMotorConfig.smartCurrentLimit(80);
-    elevatorMotorFollowerConfig.smartCurrentLimit(80);
+    elevatorMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    elevatorMotorConfig.Feedback.SensorToMechanismRatio = 2.26;
 
     // It's followers config
-    elevatorMotorFollowerConfig.idleMode(IdleMode.kBrake);
-    elevatorMotorFollowerConfig.follow(elevatorMotor);
-
-    elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    elevatorMotorFollower.configure(elevatorMotorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // Create Encoders
-    ElevatorEncoder = new DutyCycleEncoder(ElevatorConstants.ElevatorEncoderChannel);
+    elevatorMotorFollowerConfig.CurrentLimits.StatorCurrentLimit = 80;
     
+    // Apply configuration
+    elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
+    elevatorMotorFollower.getConfigurator().apply(elevatorMotorFollowerConfig);
+
+    elevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), false));
+    // Create Encoders
+    // ElevatorEncoder = new DutyCycleEncoder(ElevatorConstants.ElevatorEncoderChannel);
+    
+    elevatorEncoder = elevatorMotor.getPosition();
   }
   public void moveMotor(double x) {
     elevatorMotor.set(x);
@@ -60,13 +71,14 @@ public class Elevator extends SubsystemBase {
   // This will be a debug method for the elevator
   // It will be used for elevator height later : )
   public double getEncoderValues(){
-    return ElevatorEncoder.get() * ConversionConstants.AngleConversionValue;
+    return elevatorEncoder.getValueAsDouble() * ConversionConstants.AngleConversionValue;
   }
   
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    elevatorEncoder = elevatorMotor.getPosition();
     // System.out.println("Elev Enc Vals: " + getAverageEncoderValues());
   }
 }
