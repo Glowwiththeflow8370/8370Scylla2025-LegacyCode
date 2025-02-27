@@ -13,7 +13,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
-@Logged
+// @Logged
 public class Intake extends SubsystemBase {
   
 

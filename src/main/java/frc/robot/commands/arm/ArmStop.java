@@ -5,7 +5,6 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.Arm;
 
@@ -27,7 +26,7 @@ public class ArmStop extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    //System.out.println("Arm Down");
     Arm.RunArm(0);
 
   }

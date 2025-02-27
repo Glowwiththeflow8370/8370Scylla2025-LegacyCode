@@ -13,11 +13,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.ElevatorConstants;
 
-@Logged
+// @Logged
 public class Elevator extends SubsystemBase {
   /** Creates a new Spark. */
   
@@ -28,7 +31,7 @@ public class Elevator extends SubsystemBase {
   SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
   SparkMaxConfig elevatorMotorFollowerConfig = new SparkMaxConfig();
 
-  AbsoluteEncoder RightElevatorEncoder, LeftElevatorEncoder;
+  DutyCycleEncoder ElevatorEncoder;
   
   public Elevator() {
     elevatorMotor = new SparkMax(ElevatorConstants.ElevatorMotor, MotorType.kBrushless);
@@ -36,25 +39,19 @@ public class Elevator extends SubsystemBase {
     
     // Elevator Motor Config
     elevatorMotorConfig.idleMode(IdleMode.kBrake);
-    elevatorMotorConfig
-      .absoluteEncoder
-      .positionConversionFactor
-      (Constants.ConversionConstants.AngleConversionValue);
+    elevatorMotorConfig.smartCurrentLimit(80);
+    elevatorMotorFollowerConfig.smartCurrentLimit(80);
 
     // It's followers config
     elevatorMotorFollowerConfig.idleMode(IdleMode.kBrake);
     elevatorMotorFollowerConfig.follow(elevatorMotor);
-    elevatorMotorFollowerConfig.
-      encoder
-      .positionConversionFactor
-      (Constants.ConversionConstants.AngleConversionValue);
 
     elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotorFollower.configure(elevatorMotorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Create Encoders
-    RightElevatorEncoder = elevatorMotor.getAbsoluteEncoder();
-    LeftElevatorEncoder = elevatorMotorFollower.getAbsoluteEncoder();
+    ElevatorEncoder = new DutyCycleEncoder(ElevatorConstants.ElevatorEncoderChannel);
+    
   }
   public void moveMotor(double x) {
     elevatorMotor.set(x);
@@ -62,8 +59,8 @@ public class Elevator extends SubsystemBase {
 
   // This will be a debug method for the elevator
   // It will be used for elevator height later : )
-  public double getAverageEncoderValues(){
-    return (RightElevatorEncoder.getPosition() + LeftElevatorEncoder.getPosition()) / 2;
+  public double getEncoderValues(){
+    return ElevatorEncoder.get() * ConversionConstants.AngleConversionValue;
   }
   
 

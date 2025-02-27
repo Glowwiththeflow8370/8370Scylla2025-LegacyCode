@@ -48,7 +48,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-@Logged
+// @Logged
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -90,7 +90,6 @@ public class RobotContainer {
   // private final CommandJoystick m_Joystick = 
   //     new CommandJoystick(OperatorConstants.kStickControllerPort);
   SendableChooser<Command> AutoChooser;
-  //SendableChooser<Command> AutoChooser = new SendableChooser<>();
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -103,8 +102,8 @@ public class RobotContainer {
     Robot.Intake.setDefaultCommand(stopIntake);
 
     // Setup Named Commands
-    NamedCommands.registerCommand("Elevator", elevatorUp);
-    NamedCommands.registerCommand("EjectCoral", forwardIntake);
+    // NamedCommands.registerCommand("Elevator", elevatorUp);
+    // NamedCommands.registerCommand("EjectCoral", forwardIntake);
 
     // Configure Data that is sent to the Dashboard
     AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
@@ -112,11 +111,9 @@ public class RobotContainer {
       ? stream.filter(auto -> auto.getName().startsWith("comp"))
       : stream
   );
-    // Good to know this works!
-    // AutoChooser.setDefaultOption("Basic Drive", Autos.AutoDriveCommand());
-    // AutoChooser.addOption("Placeholder", null);
+  
     SmartDashboard.putData("Choices", AutoChooser);
-
+    
     // Configure the trigger bindings
     configureBindings();
   }

@@ -13,28 +13,33 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.IntakeConstants;
 
-@Logged
+// @Logged
 public class Wrist extends SubsystemBase{
   private SparkMax WristMotor;
   private SparkMaxConfig WristMotorConfig;
 
-  private AbsoluteEncoder WristEncoder;
+  private DutyCycleEncoder WristEncoder;
   
   /** Creates a new Wrist. */
   public Wrist() {
+    // Initialize Wrist Motor
     WristMotor = new SparkMax(IntakeConstants.WristMotor, MotorType.kBrushless);
+    // Initialize Wrist Encoder
+    WristEncoder = new DutyCycleEncoder(IntakeConstants.WristEncoderChannel);
 
+    // Create Configurations
     WristMotorConfig = new SparkMaxConfig();
     WristMotorConfig.idleMode(IdleMode.kBrake);
     WristMotorConfig.absoluteEncoder
       .positionConversionFactor(ConversionConstants.AngleConversionValue);
-
-    WristEncoder = WristMotor.getAbsoluteEncoder();
     
+    // Apply Configs to wrist motor
     WristMotor.configure(WristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -48,7 +53,7 @@ public class Wrist extends SubsystemBase{
 
   public double getWristAngle(){
     // This should return an angle
-    return WristEncoder.getPosition()/1.826;
+    return WristEncoder.get() * ArmConstants.ArmAngleConversionValue;
   }
 
   public void displayWristAngle(){

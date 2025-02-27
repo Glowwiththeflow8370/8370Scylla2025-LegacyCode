@@ -33,11 +33,6 @@ public final class Constants {
   }
 
   public static class DrivetrainConstants{
-    // Encoder Channels
-    public static final int rightEncoderChanA = 0;
-    public static final int rightEncoderChanB = 1;
-    public static final int leftEncoderChanA = 2;
-    public static final int leftEncoderChanB = 3;
     // Motor IDs
     public static final int rightFrontPort = 2;
     public static final int rightBackPort = 4;
@@ -46,8 +41,17 @@ public final class Constants {
     // "Physics" constants (Kine/Odome)
     public static final double MeasurementPlaceholder = 0.0;
 
-    public static final double driveReduction = 1;
+    // Gear Ratios to try
+    // public static final double gearRatio = 5.71;
+    public static final double gearRatio = 2.26667;
+    // public static final double gearRatio = 4.33;
     public static final double wheelRadius = Units.inchesToMeters(3);
+    public static final double wheelCircumferenceMeters = 2 * Math.PI * (wheelRadius);
+    public static final double countsPerRevolution = 2048;
+    // public static final double gearReduction = 10.71;?
+    public static final double metersPerCount = 
+    wheelCircumferenceMeters/(countsPerRevolution * gearRatio);
+    // wheelCircumferenceMeters;
 
     // Misc
     public static final int multiplier = 1;
@@ -55,12 +59,17 @@ public final class Constants {
 
     // Path planner (Kinematics/Odometry Objects)
     
+    // PID Conts
+    public static final double kP = 0.01;
+    public static final double kI = 0.01;
+    public static final double kD = 0.01;
+
     // Kinematics
 
     // Values (Kine)
 
     public static final double trackWidth = 29;
-
+    
     // Kine Obj
 
     // Odometry
@@ -88,7 +97,7 @@ public final class Constants {
     public static final int ClimbMotor = 5;
     public static final int ClimbMotorFollower = 6;
     // Running Values
-    public static final double ClimbRunningValue = 0.5;
+    public static final double ClimbRunningValue = 0.7;
   }
 
   public static class ElevatorConstants{
@@ -96,7 +105,10 @@ public final class Constants {
     public static final int ElevatorMotor = 7;
     public static final int ElevatorMotorFollower = 8;
     // Elevator Motor Run Value
-    public static final double ElevatorMotorRunValue = 0.5;
+    public static final double ElevatorMotorRunValue = 1;
+    public static final double ElevatorMotorDownRunVal = 0.05;
+
+    public static final int ElevatorEncoderChannel = 0;
   }
 
   public static class ArmConstants{
@@ -104,12 +116,19 @@ public final class Constants {
     public static final int ArmMotor = 9;
     public static final int ArmMotorFollower = 10;
 
+    // Arm Encoder Channel
+    public static final int ArmEncoderChannel = 1;
+
     // Code Stops (Such Verbose)
     public static final double UpperBoundArmAngleCodeStop = 0.0;
     public static final double LowerBoundArmAngleCodeStop = 0.0;
 
     // Arm run value
     public static final double ArmRunValue = 0.3;
+    // Wrist Conversion Value
+    public static final double ArmAngleConversionValue = 1.826;
+
+    public static final int ArmLimitSwitchPort = 9;
   }
 
   public static class IntakeConstants{
@@ -117,8 +136,11 @@ public final class Constants {
     public static final int WristMotor = 11;
     public static final int IntakeMotor = 12;
 
+    // Encoder Channel
+    public static final int WristEncoderChannel = 2;
+
     // Run values
-    public static final double IntakeRunValue = 0.2;
-    public static final double WristRunValue = 0.2;
+    public static final double IntakeRunValue = 1;
+    public static final double WristRunValue = 0.25;
   }
 }

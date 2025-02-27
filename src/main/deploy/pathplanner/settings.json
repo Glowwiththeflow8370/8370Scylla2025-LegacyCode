@@ -5,9 +5,12 @@
   "pathFolders": [
     "BlueStart1",
     "BlueStart2",
-    "BlueStart3"
+    "BlueStart3",
+    "DebugPaths"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "DebugAutos"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

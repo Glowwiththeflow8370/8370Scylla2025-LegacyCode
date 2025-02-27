@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -12,22 +11,23 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ConversionConstants;
 
-@Logged
+// @Logged
 public class Arm extends SubsystemBase{
   /** Creates TheTickler. */
 
   private SparkMax ArmMotor, ArmMotorFollower;
   private SparkMaxConfig ArmConfig, ArmFollowerConfig;
-  private AbsoluteEncoder ArmEncoder;
+  private DutyCycleEncoder ArmEncoder;
   private DigitalInput ArmLimitSwitch;
 
-  // This is the Coral/Ball intake
+  // This is the Coral intake
   public Arm() {
     ArmMotor = new SparkMax(ArmConstants.ArmMotor, MotorType.kBrushless);
     ArmMotorFollower = new SparkMax(ArmConstants.ArmMotorFollower, MotorType.kBrushless);
@@ -46,35 +46,23 @@ public class Arm extends SubsystemBase{
     ArmMotorFollower.configure(ArmFollowerConfig, ResetMode.kResetSafeParameters, 
     PersistMode.kPersistParameters);
     
-    ArmEncoder = ArmMotor.getAbsoluteEncoder();
-
-    // Create Limit Switches
-    ArmLimitSwitch = new DigitalInput(5);
+    ArmEncoder = new DutyCycleEncoder(ArmConstants.ArmEncoderChannel);
+    ArmLimitSwitch = new DigitalInput(ArmConstants.ArmLimitSwitchPort);
 
   }
 
   public void RunArm(double speed){
 
-    // add some logic here to stop the motor if it
-    // hits a certain angle
-    if(ArmLimitSwitch.get()){
-      ArmMotor.set(0);
-    }
-    // else if(getArmAngle() >= Constants.ArmConstants.LowerBoundArmAngleCodeStop){
-
-    // }
-    else{
-      ArmMotor.set(speed);
-    }
+    ArmMotor.set(speed);
     
   }
 
   public double getArmAngle(){
-    return ArmEncoder.getPosition();
+    return ArmEncoder.get() * ConversionConstants.AngleConversionValue;
   }
 
-  public void displayArmAngle(){
-    System.out.println("Angle: " + ArmEncoder.getPosition());
+  public boolean getLimitSwitchStatus(){
+    return ArmLimitSwitch.get();
   }
 
   @Override

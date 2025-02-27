@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimbConstants;
 
-@Logged
+// @Logged
 public class Climb extends SubsystemBase {
   SparkMax ClimbMotor, ClimbMotorFollower;
 
@@ -30,6 +30,7 @@ public class Climb extends SubsystemBase {
     
     ClimbMotorConfigs = new SparkMaxConfig();
     ClimbMotorConfigs.idleMode(IdleMode.kBrake);
+    ClimbMotorConfigs.smartCurrentLimit(80);
     ClimbMotorConfigs
     .absoluteEncoder
     .positionConversionFactor
@@ -38,6 +39,7 @@ public class Climb extends SubsystemBase {
     ClimbMotorFollowerConfigs = new SparkMaxConfig();
     ClimbMotorFollowerConfigs.follow(ClimbMotor, true);
     ClimbMotorFollowerConfigs.idleMode(IdleMode.kBrake);
+    ClimbMotorFollowerConfigs.smartCurrentLimit(80);
 
     ClimbMotorFollower.configure(ClimbMotorFollowerConfigs, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     ClimbMotor.configure(ClimbMotorConfigs, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -47,8 +49,6 @@ public class Climb extends SubsystemBase {
   public void runClimb(double value)
   {
     ClimbMotor.set(value);
-    // Create theoretical code for a more advanced climbing mechanism
-    // Possibly using encoders.
   }
 
   public void stopClimb(){

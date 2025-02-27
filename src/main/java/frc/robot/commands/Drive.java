@@ -38,7 +38,7 @@ public class Drive extends Command {
   public void execute() {
     xAxis = MathUtil.applyDeadband(ps4Controller.getRightX(), DrivetrainConstants.Deadband);
     yAxis = MathUtil.applyDeadband(ps4Controller.getLeftY(), DrivetrainConstants.Deadband);
-    drivetrain.tank((xAxis - yAxis), (xAxis + yAxis));
+    drivetrain.tank((yAxis - xAxis), (yAxis + xAxis));
   }
 
   // Called once the command ends or is interrupted.

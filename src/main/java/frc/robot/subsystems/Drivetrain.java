@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Meter;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -12,32 +14,34 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPLTVController;
-//import com.revrobotics.spark.config.SparkMaxConfig;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
-//import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
-//import frc.robot.commands.Drive;
-@Logged
+
+// @Logged
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
 
@@ -62,11 +66,18 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDriveKinematics kinematics;
   private DifferentialDriveOdometry odometry;
 
+  // PID
+  private PIDController leftPidController;
+  private PIDController rightPidController;
+
   // Misc
   private DrivetrainConstants DriveConsts;
   private static RobotConfig config;
 
   private SysIdRoutine routine;
+
+  double rightVelocityTranslational;
+  double leftVelocityTranslational;
 
   public Drivetrain() {
 
@@ -75,13 +86,6 @@ public class Drivetrain extends SubsystemBase {
     // then figure out how to use w spark maxes)
     // They seem to work
     //------------------------------------------
-    
-    // Right encoder
-    // rightEncoder = new Encoder(DrivetrainConstants.rightEncoderChanA, 
-    // DrivetrainConstants.rightEncoderChanB,true,EncodingType.k4X);
-    // Left encoder
-    // leftEncoder = new Encoder(DrivetrainConstants.leftEncoderChanA,
-    // DrivetrainConstants.leftEncoderChanB,false,EncodingType.k4X);
 
     // NavX Gyro (Test All port configs to find which one the
     // NavX is connected to) * I think ours is fried lol
@@ -105,13 +109,21 @@ public class Drivetrain extends SubsystemBase {
     leftConfig = new TalonFXConfiguration();
     // Invert left motor
     leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.driveReduction;
-
+    leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    leftConfig.CurrentLimits.StatorCurrentLimit = 80;
+    leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    
     // Create and set configurations (For right motor)
     rightConfig = new TalonFXConfiguration();
     // Set the right motor to turn in the opposite direction of the left motor
-    rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.driveReduction;
+    rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    rightConfig.CurrentLimits.StatorCurrentLimit = 80;
+    rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     rightEncoder = rightFront.getPosition();
     leftEncoder = leftFront.getPosition();
@@ -128,7 +140,18 @@ public class Drivetrain extends SubsystemBase {
     routine = new SysIdRoutine(new SysIdRoutine.Config(), 
     new SysIdRoutine.Mechanism(null, null, this));
 
+
+    // Reset Drivetrain Devices (NavX, KrakenEncoders, ect)
+    resetEncoders();
+    resetNavX();
+
     // Finish this by 2/8/25
+
+    // Creating PID controllers (For use on the robot!)
+    leftPidController = new PIDController(DrivetrainConstants.kP, 
+    DrivetrainConstants.kI, DrivetrainConstants.kD);
+    rightPidController = new PIDController(DrivetrainConstants.kP, 
+    DrivetrainConstants.kI, DrivetrainConstants.kD);
 
     //----------------
     //   Kine/Odom
@@ -168,6 +191,8 @@ public class Drivetrain extends SubsystemBase {
         System.out.println("Failed to configure autobuilder");
     }
 
+    // Referece code (Most likely wont be used since im pretty sure i know why the robot spins in circles)
+
   } // End of Constructor (Do not comment this bracket out)
 
   // Drive Command
@@ -179,7 +204,7 @@ public class Drivetrain extends SubsystemBase {
 
   // Get encoder Values
   public double getAverageEncoderValues(){
-    return ((rightEncoder.getValueAsDouble() + leftEncoder.getValueAsDouble())/2.0); 
+    return ((rightEncoder.getValueAsDouble() + (leftEncoder.getValueAsDouble()))/2.0); 
   }
 
   // Right encoder
@@ -192,9 +217,31 @@ public class Drivetrain extends SubsystemBase {
     return leftEncoder.getValueAsDouble();
   }
 
+  // Get encoder values in terms of meters
+  public double getLeftDistMeters(){
+    return (leftEncoder.getValueAsDouble()) * DrivetrainConstants.metersPerCount;
+  }
+
+  public double getRightDistMeters(){
+    return (rightEncoder.getValueAsDouble()) * DrivetrainConstants.metersPerCount;
+  }
+
+  public void updateEncoderPosition(){
+    rightEncoder = rightFront.getPosition();
+    leftEncoder = leftFront.getPosition();
+  }
+
   // Get NavX encoder Values (The angle is offset by 7 inches)
   public double getAngle(){
     return NavX.getYaw();
+  }
+
+  public void thing(){
+    NavX.getVelocityX();
+  }
+
+  public void resetNavX(){
+    NavX.reset();
   }
 
   // Remember to figure out the setup of the
@@ -207,10 +254,10 @@ public class Drivetrain extends SubsystemBase {
       resetEncoders();
       odometry.resetPose(initialStartingPose);
   }
-
+  // Reset motor positions (For encoders)
   public void resetEncoders(){
-      rightEncoder.refresh();
-      leftEncoder.refresh();
+      rightFront.setPosition(0);
+      leftFront.setPosition(0);
   }
 
   public ChassisSpeeds getCurrentSpeeds(){
@@ -221,7 +268,17 @@ public class Drivetrain extends SubsystemBase {
   // Tank Drive based on relative speeds
   public void tankRelative(ChassisSpeeds speeds){
     // Super close DONT GIVE UP!!!
-    tank((speeds.vxMetersPerSecond), (speeds.vxMetersPerSecond));
+
+    // Use these Comments as a reference, im quite surprised ai actually knows this (it speeds up
+    // the process so i wont have to dig into countless github repos)
+
+    // HAIL THE AI GODS, IT RUNS IN A LINE AND CRASHES INTO THE DRIVERSTATIONS!!!
+    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+    double leftOutput = leftPidController.calculate(getLeftEncValues(), wheelSpeeds.leftMetersPerSecond);
+    double rightOutput = rightPidController.calculate(getRightEncValues(), wheelSpeeds.rightMetersPerSecond);
+
+    //tank((rightOutput), (-leftOutput));
+    tank((-rightOutput), (-leftOutput));
   }
 
   // Extra Debug commands
@@ -245,11 +302,14 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // This needs to be converted somehow
+    updateEncoderPosition();
+    odometry.update(Rotation2d.fromDegrees(getAngle()), 
+    new DifferentialDriveWheelPositions(getLeftDistMeters(), 
+    getRightDistMeters()));
 
-    double leftPosMeters = leftEncoder.getValueAsDouble();
-    double rightPosMeters = rightEncoder.getValueAsDouble();
-
-    odometry.update(Rotation2d.fromDegrees(getAngle()), new DifferentialDriveWheelPositions(leftPosMeters, rightPosMeters));
+    // rightVelocityTranslational = DrivetrainConstants.wheelRadius * getRightEncValues();
+    // leftVelocityTranslational = DrivetrainConstants.wheelRadius * getLeftEncValues();
     // Call the debug commands
     // displayEncoderValues();
     // displayGyroValues();
