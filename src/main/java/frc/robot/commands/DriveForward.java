@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.Drivetrain;
@@ -11,27 +12,32 @@ import frc.robot.subsystems.Drivetrain;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveForward extends Command {
   private Drivetrain drivetrain;
-  private double distance;
+  private double startTime;
+  private double endTime;
   private double speed;
+  private double currentTime;
       
     /** Creates a new AutoDrive. */
-  public DriveForward(Drivetrain drivetrain, double speed, double distance) {
+  public DriveForward(Drivetrain drivetrain, double speed, double endTime) {
     this.drivetrain = drivetrain;
     this.speed = speed;
-    this.distance = distance;
+    this.endTime = endTime;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(Robot.Drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    startTime = Timer.getFPGATimestamp();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println("running");
-    drivetrain.tank(speed, speed);
+    // currentTime = Timer.getFPGATimestamp();
+    System.out.println("Hallo");
+    drivetrain.tank(-speed, -speed);
   }
 
   // Called once the command ends or is interrupted.
@@ -41,9 +47,13 @@ public class DriveForward extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(drivetrain.getAverageEncoderValues() < distance){
-      return false;
-    }
-    return true;
+    // if(currentTime - startTime < endTime){
+    //   System.out.println("Running");
+    //   return false;
+    // }
+    // System.out.println("Drive Command Done");
+    // return true;
+
+    return false;
   }
 }

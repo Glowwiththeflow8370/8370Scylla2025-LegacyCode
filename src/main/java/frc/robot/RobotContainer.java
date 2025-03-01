@@ -10,9 +10,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
-import frc.robot.commands.arm.ArmDown;
-import frc.robot.commands.arm.ArmStop;
-import frc.robot.commands.arm.ArmUp;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
@@ -69,9 +66,7 @@ public class RobotContainer {
   ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
 
   // Arm Commands
-  ArmUp armUp = new ArmUp(Robot.Arm);
-  ArmDown armDown = new ArmDown(Robot.Arm);
-  ArmStop armStop = new ArmStop(Robot.Arm);
+
   // Intake Commands
   RunIntake forwardIntake = new RunIntake(Robot.Intake, false);
   RunIntake reverseIntake = new RunIntake(Robot.Intake, true);
@@ -97,7 +92,6 @@ public class RobotContainer {
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
     Robot.Climb.setDefaultCommand(climbStop);
     Robot.Elevator.setDefaultCommand(elevatorStop);
-    Robot.Arm.setDefaultCommand(armStop);
     Robot.Wrist.setDefaultCommand(stopWrist);
     Robot.Intake.setDefaultCommand(stopIntake);
 
@@ -112,7 +106,9 @@ public class RobotContainer {
       : stream
   );
   
-    SmartDashboard.putData("Choices", AutoChooser);
+  AutoChooser.setDefaultOption("Basic Drive Forward (Timed)", Autos.AutoDriveCommand().withTimeout(0.5));
+
+  SmartDashboard.putData("Choices", AutoChooser);
     
     // Configure the trigger bindings
     configureBindings();
@@ -141,15 +137,12 @@ public class RobotContainer {
     m_driverController.circle().whileTrue(reversClimb);
 
     // Elevator Buttons
-    m_driverController.square().whileTrue(elevatorUp);
-    m_driverController.cross().whileTrue(elevatorDown);
+    m_driverController.pov(180).whileTrue(elevatorDown);
+    m_driverController.pov(0).whileTrue(elevatorUp);
 
     // Arm Buttons
     // m_driverController.L1().whileTrue(armUp);
     // m_driverController.R1().whileTrue(armDown);
-
-    m_driverController.pov(90).whileTrue(armUp);
-    m_driverController.pov(270).whileTrue(armDown);
 
     // Intake/Arm buttons
     m_driverController.L1().whileTrue(rotateWrist);

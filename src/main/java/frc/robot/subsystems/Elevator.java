@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 // import frc.robot.Constants;
 // import frc.robot.Constants.ArmConstants;
 // import edu.wpi.first.epilogue.Logged;
@@ -20,9 +22,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ConversionConstants;
@@ -58,6 +61,9 @@ public class Elevator extends SubsystemBase {
     elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
     elevatorMotorFollower.getConfigurator().apply(elevatorMotorFollowerConfig);
 
+    // elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+    // elevatorMotorFollower.setNeutralMode(NeutralModeValue.Brake);
+
     elevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), false));
     // Create Encoders
     // ElevatorEncoder = new DutyCycleEncoder(ElevatorConstants.ElevatorEncoderChannel);
@@ -66,6 +72,12 @@ public class Elevator extends SubsystemBase {
   }
   public void moveMotor(double x) {
     elevatorMotor.set(x);
+    setNeutralMode(NeutralModeValue.Coast);
+  }
+
+  public void stop(){
+    elevatorMotor.set(0);
+    setNeutralMode(NeutralModeValue.Brake);
   }
 
   // This will be a debug method for the elevator
@@ -73,12 +85,19 @@ public class Elevator extends SubsystemBase {
   public double getEncoderValues(){
     return elevatorEncoder.getValueAsDouble() * ConversionConstants.AngleConversionValue;
   }
+
+  public void setNeutralMode(NeutralModeValue value){
+    elevatorMotor.setNeutralMode(value);
+    elevatorMotorFollower.setNeutralMode(value);
+  }
   
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     elevatorEncoder = elevatorMotor.getPosition();
+
+        SmartDashboard.putNumber("Elevator Position (Deg)", getEncoderValues());
     // System.out.println("Elev Enc Vals: " + getAverageEncoderValues());
   }
 }

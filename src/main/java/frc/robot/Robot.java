@@ -34,7 +34,6 @@ public class Robot extends TimedRobot {
   // Declare Subsystems (For dependencies)
   public static Drivetrain Drivetrain = new Drivetrain();
   public static Climb Climb = new Climb();
-  public static Arm Arm = new Arm();
   public static Intake Intake = new Intake();
   public static Wrist Wrist = new Wrist();
   public static Elevator Elevator = new Elevator();
@@ -68,24 +67,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // Drivetrain values
-    SmartDashboard.putNumber("Drivetrain Angle", Drivetrain.getAngle());
-    // Encoder values (in terms of rotations/angles)
-    SmartDashboard.putNumber("Drivetrain Encoder Pos", Drivetrain.getAverageEncoderValues());
-    SmartDashboard.putNumber("Right Drivetrain enc pos", Drivetrain.getRightEncValues());
-    SmartDashboard.putNumber("Left Drivetrain enc pos", Drivetrain.getLeftEncValues());
-    // Drivetrain distances (in meters)
-    SmartDashboard.putNumber("Right Distance (Meters)", Drivetrain.getRightDistMeters());
-    SmartDashboard.putNumber("Left Distance (Meters)", Drivetrain.getLeftDistMeters());
+    
     // Get Robot's acceleration
 
     // Get angles of subsystems
-    SmartDashboard.putNumber("Arm Angle", Arm.getArmAngle());
-    SmartDashboard.putNumber("Wrist Angle", Wrist.getWristAngle());
-    SmartDashboard.putNumber("Elevator Position (Deg)", Elevator.getEncoderValues());
-    SmartDashboard.putNumber("Climb Angle", Climb.getClimbEncoderValues());
+    
+    
     // Get the status of the Arm Limit Switch
-    SmartDashboard.putBoolean("Arm Limit Switch Status", Arm.getLimitSwitchStatus());
 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,

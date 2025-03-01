@@ -29,7 +29,7 @@ public class ElevatorUp extends Command {
   @Override
   public void execute() 
   {
-    elevator.moveMotor(ElevatorConstants.ElevatorMotorRunValue);
+    elevator.moveMotor(-ElevatorConstants.ElevatorMotorRunValue);
   }
 
   // Called once the command ends or is interrupted.

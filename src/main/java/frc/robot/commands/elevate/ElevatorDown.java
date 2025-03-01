@@ -27,7 +27,7 @@ public class ElevatorDown extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.moveMotor(-ElevatorConstants.ElevatorMotorRunValue);
+    elevator.moveMotor(ElevatorConstants.ElevatorMotorDownRunVal);
   }
 
   // Called once the command ends or is interrupted.

@@ -34,6 +34,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -109,7 +110,7 @@ public class Drivetrain extends SubsystemBase {
     leftConfig = new TalonFXConfiguration();
     // Invert left motor
     leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    // leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
     leftConfig.CurrentLimits.StatorCurrentLimit = 80;
     leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
@@ -119,7 +120,7 @@ public class Drivetrain extends SubsystemBase {
     rightConfig = new TalonFXConfiguration();
     // Set the right motor to turn in the opposite direction of the left motor
     rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    // rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
     rightConfig.CurrentLimits.StatorCurrentLimit = 80;
     rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
@@ -198,8 +199,8 @@ public class Drivetrain extends SubsystemBase {
   // Drive Command
   public void tank(double x, double y){
     // Multiplier in constants in case it is needed
-    rightFront.set(x);
-    leftFront.set(y);
+    rightFront.set(x * 0.5);
+    leftFront.set(y * 0.5);
   }
 
   // Get encoder Values
@@ -307,6 +308,16 @@ public class Drivetrain extends SubsystemBase {
     odometry.update(Rotation2d.fromDegrees(getAngle()), 
     new DifferentialDriveWheelPositions(getLeftDistMeters(), 
     getRightDistMeters()));
+
+    // Drivetrain values
+    SmartDashboard.putNumber("Drivetrain Angle", getAngle());
+    // Encoder values (in terms of rotations/angles)
+    SmartDashboard.putNumber("Drivetrain Encoder Pos", getAverageEncoderValues());
+    SmartDashboard.putNumber("Right Drivetrain enc pos", getRightEncValues());
+    SmartDashboard.putNumber("Left Drivetrain enc pos", getLeftEncValues());
+    // Drivetrain distances (in meters)
+    SmartDashboard.putNumber("Right Distance (Meters)", getRightDistMeters());
+    SmartDashboard.putNumber("Left Distance (Meters)", getLeftDistMeters());
 
     // rightVelocityTranslational = DrivetrainConstants.wheelRadius * getRightEncValues();
     // leftVelocityTranslational = DrivetrainConstants.wheelRadius * getLeftEncValues();

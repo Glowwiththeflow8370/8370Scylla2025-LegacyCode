@@ -105,8 +105,8 @@ public final class Constants {
     public static final int ElevatorMotor = 7;
     public static final int ElevatorMotorFollower = 8;
     // Elevator Motor Run Value
-    public static final double ElevatorMotorRunValue = 1;
-    public static final double ElevatorMotorDownRunVal = 0.05;
+    public static final double ElevatorMotorRunValue = 0.4;
+    public static final double ElevatorMotorDownRunVal = 0.25;
 
     public static final int ElevatorEncoderChannel = 0;
   }
@@ -141,6 +141,6 @@ public final class Constants {
 
     // Run values
     public static final double IntakeRunValue = 1;
-    public static final double WristRunValue = 0.25;
+    public static final double WristRunValue = 0.4;
   }
 }
