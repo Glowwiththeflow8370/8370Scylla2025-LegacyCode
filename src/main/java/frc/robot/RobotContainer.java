@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.CompConsts;
+import frc.robot.Constants.ElevatorConstants;
 //import frc.robot.Robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
@@ -13,6 +14,7 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
+import frc.robot.commands.elevate.ElevateToPosition;
 import frc.robot.commands.elevate.ElevatorDown;
 import frc.robot.commands.elevate.ElevatorStop;
 import frc.robot.commands.elevate.ElevatorUp;
@@ -65,6 +67,8 @@ public class RobotContainer {
   ElevatorDown elevatorDown = new ElevatorDown(Robot.Elevator);
   ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
 
+  ElevateToPosition sourceSetPosition = new ElevateToPosition(Robot.Elevator, 
+  ElevatorConstants.ANGLE_SET_POINTS[0]);
   // Arm Commands
 
   // Intake Commands
@@ -99,14 +103,15 @@ public class RobotContainer {
     // NamedCommands.registerCommand("Elevator", elevatorUp);
     // NamedCommands.registerCommand("EjectCoral", forwardIntake);
 
-    // Configure Data that is sent to the Dashboard
+    // Configure Data that is sent to the Dashboard (PathPlannerPaths)
     AutoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
     (stream) -> CompConsts.isCompetiton
       ? stream.filter(auto -> auto.getName().startsWith("comp"))
       : stream
   );
-  
+  // Auto fallback solutions (use if pathplanner is not working)
   AutoChooser.setDefaultOption("Basic Drive Forward (Timed)", Autos.AutoDriveCommand().withTimeout(0.5));
+  AutoChooser.addOption("Basic Auto Score (Timed)", Autos.BasicAutoScore());
 
   SmartDashboard.putData("Choices", AutoChooser);
     
@@ -134,12 +139,13 @@ public class RobotContainer {
 
     // Climb Buttons
     m_driverController.triangle().whileTrue(climbCommand);
-    m_driverController.circle().whileTrue(reversClimb);
+    m_driverController.cross().whileTrue(reversClimb);
 
     // Elevator Buttons
     m_driverController.pov(180).whileTrue(elevatorDown);
     m_driverController.pov(0).whileTrue(elevatorUp);
 
+    m_driverController.pov(90).whileTrue(sourceSetPosition);
     // Arm Buttons
     // m_driverController.L1().whileTrue(armUp);
     // m_driverController.R1().whileTrue(armDown);

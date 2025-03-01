@@ -111,20 +111,20 @@ public class Drivetrain extends SubsystemBase {
     // Invert left motor
     leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     // leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
-    leftConfig.CurrentLimits.StatorCurrentLimit = 80;
-    leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    // leftConfig.CurrentLimits.StatorCurrentLimit = 80;
+    // leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    // leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    // leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     
     // Create and set configurations (For right motor)
     rightConfig = new TalonFXConfiguration();
     // Set the right motor to turn in the opposite direction of the left motor
     rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     // rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
-    rightConfig.CurrentLimits.StatorCurrentLimit = 80;
-    rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    // rightConfig.CurrentLimits.StatorCurrentLimit = 80;
+    // rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    // rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    // rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     rightEncoder = rightFront.getPosition();
     leftEncoder = leftFront.getPosition();

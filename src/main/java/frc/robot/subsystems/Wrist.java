@@ -54,7 +54,7 @@ public class Wrist extends SubsystemBase{
 
   public double getWristAngle(){
     // This should return an angle
-    return WristEncoder.get() * ArmConstants.ArmAngleConversionValue;
+    return WristEncoder.get() * ConversionConstants.AngleConversionValue;
   }
 
   public void displayWristAngle(){

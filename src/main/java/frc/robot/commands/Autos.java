@@ -17,6 +17,10 @@ public final class Autos {
     return new DriveForward(Robot.Drivetrain, 1, 2);
   }
 
+  public static Command BasicAutoScore(){
+    return new BasicAutoScore();
+  }
+
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }

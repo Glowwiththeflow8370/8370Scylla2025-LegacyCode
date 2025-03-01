@@ -106,7 +106,9 @@ public final class Constants {
     public static final int ElevatorMotorFollower = 8;
     // Elevator Motor Run Value
     public static final double ElevatorMotorRunValue = 0.4;
-    public static final double ElevatorMotorDownRunVal = 0.25;
+    public static final double ElevatorMotorDownRunVal = -0.25;
+
+    public static final double[] ANGLE_SET_POINTS = {360, 720};
 
     public static final int ElevatorEncoderChannel = 0;
   }

@@ -22,6 +22,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -53,9 +54,11 @@ public class Elevator extends SubsystemBase {
     // Elevator Motor Config
     elevatorMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
     elevatorMotorConfig.Feedback.SensorToMechanismRatio = 2.26;
+    elevatorMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // It's followers config
     elevatorMotorFollowerConfig.CurrentLimits.StatorCurrentLimit = 80;
+    elevatorMotorFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     
     // Apply configuration
     elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
@@ -74,7 +77,7 @@ public class Elevator extends SubsystemBase {
     elevatorMotor.set(x);
     setNeutralMode(NeutralModeValue.Coast);
   }
-
+  
   public void stop(){
     elevatorMotor.set(0);
     setNeutralMode(NeutralModeValue.Brake);
@@ -90,7 +93,6 @@ public class Elevator extends SubsystemBase {
     elevatorMotor.setNeutralMode(value);
     elevatorMotorFollower.setNeutralMode(value);
   }
-  
 
   @Override
   public void periodic() {

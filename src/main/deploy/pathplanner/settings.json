@@ -3,9 +3,9 @@
   "robotLength": 0.9,
   "holonomicMode": false,
   "pathFolders": [
-    "BlueStart1",
-    "BlueStart2",
-    "BlueStart3",
+    "Start1",
+    "Start2",
+    "Start3",
     "DebugPaths"
   ],
   "autoFolders": [

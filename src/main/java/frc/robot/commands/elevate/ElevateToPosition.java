@@ -5,31 +5,33 @@
 package frc.robot.commands.elevate;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ElevatorUp extends Command {
-  /** Creates a new ElevatorUp. */
+public class ElevateToPosition extends Command {
+  /** Creates a new ElevateToPosition. */
+
   Elevator elevator;
-  
-  public ElevatorUp(Elevator elevator) {
+  double position;
+
+  public ElevateToPosition(Elevator elevator, double position) {
     this.elevator = elevator;
+    this.position = position;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(Robot.Elevator);
-  
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() 
-  {
-    elevator.moveMotor(ElevatorConstants.ElevatorMotorRunValue);
+  public void execute() {
+      elevator.moveMotor(0.25);
   }
 
   // Called once the command ends or is interrupted.
@@ -39,6 +41,14 @@ public class ElevatorUp extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+
+    if(elevator.getEncoderValues() >= position){
+      System.out.println("Command Finished");
+      System.out.println("Elevator Stopped");
+      elevator.moveMotor(0);
+      return true;
+    }
+    System.out.println("Command Running");
     return false;
   }
 }
