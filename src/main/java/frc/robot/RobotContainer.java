@@ -19,6 +19,7 @@ import frc.robot.commands.elevate.ElevatorDown;
 import frc.robot.commands.elevate.ElevatorStop;
 import frc.robot.commands.elevate.ElevatorUp;
 import frc.robot.commands.intake.RotateWrist;
+import frc.robot.commands.intake.RotateWristToPosition;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.StopIntake;
 import frc.robot.commands.intake.StopWrist;
@@ -79,6 +80,7 @@ public class RobotContainer {
   RotateWrist rotateWristReverse = new RotateWrist(Robot.Wrist,true,  90);
   RotateWrist rotateWrist = new RotateWrist(Robot.Wrist,false,  90);
   StopWrist stopWrist = new StopWrist(Robot.Wrist);
+  // RotateWristToPosition sourceAngle = new RotateWristToPosition(Robot.Wrist, 250);
   // If needed, this is where the pathplanner autos will go (putting the pathplanner)
   // Named commands here
 
@@ -140,12 +142,14 @@ public class RobotContainer {
     // Climb Buttons
     m_driverController.triangle().whileTrue(climbCommand);
     m_driverController.cross().whileTrue(reversClimb);
+    // m_driverController.circle().whileTrue(Autos.HoldClimb().withTimeout(0.5));
 
     // Elevator Buttons
     m_driverController.pov(180).whileTrue(elevatorDown);
     m_driverController.pov(0).whileTrue(elevatorUp);
 
-    m_driverController.pov(90).whileTrue(sourceSetPosition);
+    m_driverController.pov(270).onTrue(sourceSetPosition);
+    // m_driverController.pov(90).onTrue(sourceAngle);
     // Arm Buttons
     // m_driverController.L1().whileTrue(armUp);
     // m_driverController.R1().whileTrue(armDown);
