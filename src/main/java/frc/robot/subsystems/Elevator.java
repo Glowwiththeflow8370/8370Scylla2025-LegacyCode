@@ -48,6 +48,7 @@ public class Elevator extends SubsystemBase {
   // DutyCycleEncoder ElevatorEncoder;
   
   public Elevator() {
+    // Create elevator motors
     elevatorMotor = new TalonFX(ElevatorConstants.ElevatorMotor);
     elevatorMotorFollower = new TalonFX(ElevatorConstants.ElevatorMotorFollower);  
     
@@ -67,13 +68,12 @@ public class Elevator extends SubsystemBase {
     // elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
     // elevatorMotorFollower.setNeutralMode(NeutralModeValue.Brake);
 
-    elevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), false));
-    // Create Encoders
-    // ElevatorEncoder = new DutyCycleEncoder(ElevatorConstants.ElevatorEncoderChannel);
-    
+    elevatorMotorFollower.setControl(new Follower(elevatorMotor.getDeviceID(), false));
+
+    // Assign a value to the elevator encoder
     elevatorEncoder = elevatorMotor.getPosition();
   }
-  public void moveMotor(double x) {
+  public void runElevator(double x) {
     elevatorMotor.set(x);
     setNeutralMode(NeutralModeValue.Coast);
   }

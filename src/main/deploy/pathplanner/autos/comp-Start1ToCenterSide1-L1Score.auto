@@ -9,6 +9,12 @@
           "data": {
             "pathName": "BlueStart1ToCenterSide1"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevateToL1"
+          }
         }
       ]
     }

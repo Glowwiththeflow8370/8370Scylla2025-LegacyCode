@@ -18,16 +18,23 @@ public class Intake extends SubsystemBase {
   
 
   private SparkFlex IntakeMotor;
-  private SparkFlexConfig IntakeMotorConfig;
+  private SparkFlex IntakeMotorFollower;
 
+  private SparkFlexConfig IntakeMotorConfig;
+  private SparkFlexConfig IntakeMotorFollowerConfig;
 
   /** Creates a new Intake. */
   public Intake() {
     IntakeMotor = new SparkFlex(IntakeConstants.IntakeMotor, MotorType.kBrushless);
+    IntakeMotorFollower = new SparkFlex(IntakeConstants.IntakeMotorFollower, MotorType.kBrushless);
 
     IntakeMotorConfig = new SparkFlexConfig();
     IntakeMotorConfig.idleMode(IdleMode.kBrake);
-    
+
+    IntakeMotorFollowerConfig = new SparkFlexConfig();
+    IntakeMotorFollowerConfig.idleMode(IdleMode.kBrake);
+    IntakeMotorFollowerConfig.follow(IntakeMotor, true);
+
   }
 
   public void runIntake(double value){

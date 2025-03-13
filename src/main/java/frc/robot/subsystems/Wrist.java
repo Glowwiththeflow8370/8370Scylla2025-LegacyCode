@@ -44,27 +44,25 @@ public class Wrist extends SubsystemBase{
     WristMotor.configure(WristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+  // Rotates the wrist
   public void rotateWrist(double value){
     WristMotor.set(value);
   }
 
+  // Stops the wrist
   public void stopWrist(){
     WristMotor.set(0);
   }
 
+  // Get wrist angle
   public double getWristAngle(){
-    // This should return an angle
+    // *This should return an angle
     return WristEncoder.get() * ConversionConstants.AngleConversionValue;
-  }
-
-  public void displayWristAngle(){
-    System.out.println("Wrist Angle: " + getWristAngle());
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // displayWristAngle();
     SmartDashboard.putNumber("Wrist Angle", getWristAngle());
   }
 }

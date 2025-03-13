@@ -8,21 +8,12 @@ import frc.robot.Constants.CompConsts;
 import frc.robot.Constants.ElevatorConstants;
 //import frc.robot.Robot;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
+
 //import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
 import frc.robot.commands.climbing.ForwardClimb;
 import frc.robot.commands.climbing.ClimbStop;
 import frc.robot.commands.climbing.ReversClimb;
-import frc.robot.commands.elevate.ElevateToPosition;
-import frc.robot.commands.elevate.ElevatorDown;
-import frc.robot.commands.elevate.ElevatorStop;
-import frc.robot.commands.elevate.ElevatorUp;
-import frc.robot.commands.intake.RotateWrist;
-import frc.robot.commands.intake.RotateWristToPosition;
-import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.intake.StopIntake;
-import frc.robot.commands.intake.StopWrist;
 
 import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -64,25 +55,11 @@ public class RobotContainer {
   ClimbStop climbStop = new ClimbStop(Robot.Climb);
 
   // Elevator Commands
-  ElevatorUp elevatorUp = new ElevatorUp(Robot.Elevator);
-  ElevatorDown elevatorDown = new ElevatorDown(Robot.Elevator);
-  ElevatorStop elevatorStop = new ElevatorStop(Robot.Elevator);
+  
+  // To L1
+  
 
-  ElevateToPosition sourceSetPosition = new ElevateToPosition(Robot.Elevator, 
-  ElevatorConstants.ANGLE_SET_POINTS[0]);
-  // Arm Commands
-
-  // Intake Commands
-  RunIntake forwardIntake = new RunIntake(Robot.Intake, false);
-  RunIntake reverseIntake = new RunIntake(Robot.Intake, true);
-  StopIntake stopIntake = new StopIntake(Robot.Intake);
-  // Wrist (Aux of Intake), the angle has yet to be used as of yet
-  RotateWrist rotateWristReverse = new RotateWrist(Robot.Wrist,true,  90);
-  RotateWrist rotateWrist = new RotateWrist(Robot.Wrist,false,  90);
-  StopWrist stopWrist = new StopWrist(Robot.Wrist);
   // RotateWristToPosition sourceAngle = new RotateWristToPosition(Robot.Wrist, 250);
-  // If needed, this is where the pathplanner autos will go (putting the pathplanner)
-  // Named commands here
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller m_driverController =
@@ -97,12 +74,10 @@ public class RobotContainer {
     // Set the default commands of the subsystems
     Robot.Drivetrain.setDefaultCommand(new Drive(Robot.Drivetrain, m_driverController));
     Robot.Climb.setDefaultCommand(climbStop);
-    Robot.Elevator.setDefaultCommand(elevatorStop);
-    Robot.Wrist.setDefaultCommand(stopWrist);
-    Robot.Intake.setDefaultCommand(stopIntake);
+    
 
     // Setup Named Commands
-    // NamedCommands.registerCommand("Elevator", elevatorUp);
+    NamedCommands.registerCommand("ElevateToL1", climbStop);
     // NamedCommands.registerCommand("EjectCoral", forwardIntake);
 
     // Configure Data that is sent to the Dashboard (PathPlannerPaths)
@@ -112,8 +87,7 @@ public class RobotContainer {
       : stream
   );
   // Auto fallback solutions (use if pathplanner is not working)
-  AutoChooser.setDefaultOption("Basic Drive Forward (Timed)", Autos.AutoDriveCommand().withTimeout(0.5));
-  AutoChooser.addOption("Basic Auto Score (Timed)", Autos.BasicAutoScore());
+  
 
   SmartDashboard.putData("Choices", AutoChooser);
     
@@ -145,22 +119,16 @@ public class RobotContainer {
     // m_driverController.circle().whileTrue(Autos.HoldClimb().withTimeout(0.5));
 
     // Elevator Buttons
-    m_driverController.pov(180).whileTrue(elevatorDown);
-    m_driverController.pov(0).whileTrue(elevatorUp);
+    // m_driverController.pov(180).whileTrue(elevatorDown);
+    // m_driverController.pov(0).whileTrue(elevatorUp);
 
-    m_driverController.pov(270).onTrue(sourceSetPosition);
+    // m_driverController.pov(270).onTrue(sourceSetPosition);
     // m_driverController.pov(90).onTrue(sourceAngle);
     // Arm Buttons
     // m_driverController.L1().whileTrue(armUp);
     // m_driverController.R1().whileTrue(armDown);
 
     // Intake/Arm buttons
-    m_driverController.L1().whileTrue(rotateWrist);
-    m_driverController.R1().whileTrue(rotateWristReverse);
-
-
-    m_driverController.L2().whileTrue(forwardIntake);
-    m_driverController.R2().whileTrue(reverseIntake);
   }
 
   /**

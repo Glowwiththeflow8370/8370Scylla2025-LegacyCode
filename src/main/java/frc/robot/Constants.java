@@ -26,6 +26,26 @@ public final class Constants {
     public static final double AngleConversionValue = 360;
   }
 
+  public static class Channels{
+    // Used for motors not used by the drivetrain
+
+    // Climb Channels
+    public static final int ClimbMotor = 5;
+    public static final int ClimbMotorFollower = 6;
+
+    // Elevator Channels
+    public static final int ElevatorMotor = 7;
+    public static final int ElevatorMotorFollower = 8;
+
+    // Arm Channels
+    public static final int ArmMotor = 9;
+    public static final int ArmMotorFollower = 10;
+
+    // Wrist/Intake Channels
+    public static final int WristMotor = 11;
+    public static final int IntakeMotor = 12;
+  }
+
   public static class CompConsts{
 
     public static final boolean isCompetiton = false;
@@ -42,43 +62,30 @@ public final class Constants {
     public static final double MeasurementPlaceholder = 0.0;
 
     // Gear Ratios to try
-    // public static final double gearRatio = 5.71;
-    public static final double gearRatio = 2.26667;
-    // public static final double gearRatio = 4.33;
+    public static final double gearRatio = 0.1018;
+
     public static final double wheelRadius = Units.inchesToMeters(3);
     public static final double wheelCircumferenceMeters = 2 * Math.PI * (wheelRadius);
     public static final double countsPerRevolution = 2048;
-    // public static final double gearReduction = 10.71;?
+    
     public static final double metersPerCount = 
     wheelCircumferenceMeters/(countsPerRevolution * gearRatio);
     // wheelCircumferenceMeters;
 
     // Misc
-    public static final int multiplier = 1;
+    public static final double multiplier = 0.7;
     public static final double Deadband = 0.25;
 
-    // Path planner (Kinematics/Odometry Objects)
+    // Stuff used in pathplanner
     
-    // PID Conts
+    // PID Consts
     public static final double kP = 0.01;
     public static final double kI = 0.01;
     public static final double kD = 0.01;
-
-    // Kinematics
-
-    // Values (Kine)
-
+    // Track Width (used in something)
     public static final double trackWidth = 29;
-    
-    // Kine Obj
 
-    // Odometry
-
-    // Values (Odom)
-
-    // Odom Obj
-
-    // Create the configuration
+    // Create the path planner configuration
     public static RobotConfig robotConfig;
 
     public DrivetrainConstants()
@@ -97,7 +104,7 @@ public final class Constants {
     public static final int ClimbMotor = 5;
     public static final int ClimbMotorFollower = 6;
     // Running Values
-    public static final double ClimbRunningValue = 0.7;
+    public static final double ClimbRunningValue = 1;
   }
 
   public static class ElevatorConstants{
@@ -107,10 +114,8 @@ public final class Constants {
     // Elevator Motor Run Value
     public static final double ElevatorMotorRunValue = 0.4;
     public static final double ElevatorMotorDownRunVal = -0.25;
-
+    // Angle setpoints (stored in a list)
     public static final double[] ANGLE_SET_POINTS = {3100, 720};
-
-    public static final int ElevatorEncoderChannel = 0;
   }
 
   public static class ArmConstants{
@@ -144,5 +149,6 @@ public final class Constants {
     // Run values
     public static final double IntakeRunValue = 1;
     public static final double WristRunValue = 0.4;
+    public static final int IntakeMotorFollower = 13;
   }
 }

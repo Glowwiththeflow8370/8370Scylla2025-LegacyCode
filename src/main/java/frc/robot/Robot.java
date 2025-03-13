@@ -67,14 +67,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    
-    // Get Robot's acceleration
-
-    // Get angles of subsystems
-    
-    
-    // Get the status of the Arm Limit Switch
-
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

@@ -5,6 +5,12 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -33,7 +39,11 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MutDistance;
+import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -45,6 +55,14 @@ import frc.robot.Constants.DrivetrainConstants;
 // @Logged
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
+
+  // Sysid
+  // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+  private final MutVoltage m_appliedVoltage = Volts.mutable(0);
+  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  private final MutDistance m_distance = Meters.mutable(0);
+  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
 
   // Motor Objects
   private TalonFX rightFront, rightBack, leftFront, leftBack;
@@ -110,21 +128,21 @@ public class Drivetrain extends SubsystemBase {
     leftConfig = new TalonFXConfiguration();
     // Invert left motor
     leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    // leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
-    // leftConfig.CurrentLimits.StatorCurrentLimit = 80;
-    // leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    // leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    // leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    leftConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    leftConfig.CurrentLimits.StatorCurrentLimit = 80;
+    leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    leftConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     
     // Create and set configurations (For right motor)
     rightConfig = new TalonFXConfiguration();
     // Set the right motor to turn in the opposite direction of the left motor
     rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    // rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
-    // rightConfig.CurrentLimits.StatorCurrentLimit = 80;
-    // rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    // rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    // rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rightConfig.Feedback.SensorToMechanismRatio = Constants.DrivetrainConstants.gearRatio;
+    rightConfig.CurrentLimits.StatorCurrentLimit = 80;
+    rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rightConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     rightEncoder = rightFront.getPosition();
     leftEncoder = leftFront.getPosition();
@@ -137,10 +155,14 @@ public class Drivetrain extends SubsystemBase {
     rightBack.setControl(new Follower(rightFront.getDeviceID(), false));
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
 
-    // Sysid stuff
-    routine = new SysIdRoutine(new SysIdRoutine.Config(), 
-    new SysIdRoutine.Mechanism(null, null, this));
-
+    // Sysid stuff (we "borrowed" it)
+    routine = new SysIdRoutine(new SysIdRoutine.Config(Volts.per(Second).of(1),
+    Volts.of(4), null, 
+    (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+    new SysIdRoutine.Mechanism(
+        (voltage) -> voltageTank(voltage.in(Volts)), null, this));
+    // Try this if the thing does not work
+    // (state) -> SignalLogger.writeString("state", state.toString());
 
     // Reset Drivetrain Devices (NavX, KrakenEncoders, ect)
     resetEncoders();
@@ -171,7 +193,7 @@ public class Drivetrain extends SubsystemBase {
         this::getPose, // Robot pose supplier
         this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
         this::getCurrentSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::tankRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+        (speeds, feedforwards) -> tankRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
         new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
         config, // The robot configuration
         () -> {
@@ -192,15 +214,13 @@ public class Drivetrain extends SubsystemBase {
         System.out.println("Failed to configure autobuilder");
     }
 
-    // Referece code (Most likely wont be used since im pretty sure i know why the robot spins in circles)
-
   } // End of Constructor (Do not comment this bracket out)
 
   // Drive Command
   public void tank(double x, double y){
     // Multiplier in constants in case it is needed
-    rightFront.set(x * 0.5);
-    leftFront.set(y * 0.5);
+    rightFront.set(x * DrivetrainConstants.multiplier);
+    leftFront.set(y * DrivetrainConstants.multiplier);
   }
 
   // Get encoder Values
@@ -280,6 +300,11 @@ public class Drivetrain extends SubsystemBase {
 
     //tank((rightOutput), (-leftOutput));
     tank((-rightOutput), (-leftOutput));
+  }
+
+  public void voltageTank(double output){
+      rightFront.setVoltage(output);
+      leftFront.setVoltage(output);
   }
 
   // Extra Debug commands
